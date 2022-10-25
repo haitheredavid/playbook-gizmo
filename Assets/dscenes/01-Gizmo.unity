@@ -276,7 +276,7 @@ MonoBehaviour:
   axis: 2
   sides: 50
   offsetSize: 0.2
-  innerRadius: 2
+  innerRadius: 1
 --- !u!64 &601161172
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -622,7 +622,6 @@ GameObject:
   m_Component:
   - component: {fileID: 963194228}
   - component: {fileID: 963194227}
-  - component: {fileID: 963194226}
   - component: {fileID: 963194229}
   m_Layer: 0
   m_Name: Playbook-User
@@ -631,19 +630,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &963194226
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 963194225}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dcd25244495948509a369c5b1c99d292, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  viewer: {fileID: 963194227}
 --- !u!20 &963194227
 Camera:
   m_ObjectHideFlags: 0
@@ -770,7 +756,7 @@ MonoBehaviour:
   axis: 1
   sides: 50
   offsetSize: 0.2
-  innerRadius: 2
+  innerRadius: 1
 --- !u!64 &987492069
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1511,7 +1497,7 @@ MonoBehaviour:
   axis: 0
   sides: 50
   offsetSize: 0.2
-  innerRadius: 2
+  innerRadius: 1
 --- !u!64 &1957607844
 MeshCollider:
   m_ObjectHideFlags: 0

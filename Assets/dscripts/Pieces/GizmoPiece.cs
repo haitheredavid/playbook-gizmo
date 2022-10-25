@@ -40,9 +40,10 @@ namespace HaiThere.Playbook
 
 		public virtual void SetActive(bool status)
 		{
-			Debug.Log($"Setting status {status}");
-			meshRenderer.enabled = status;
-			meshCollider.enabled = status;
+			if (meshRenderer)
+				meshRenderer.enabled = status;
+			if (meshCollider)
+				meshCollider.enabled = status;
 		}
 
 		protected static bool ObjectValid<TObj>(TObj mesh) where TObj : UnityEngine.Object

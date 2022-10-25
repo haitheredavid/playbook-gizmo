@@ -54,7 +54,7 @@ namespace HaiThere.Playbook
 			gizmo.SetActiveObj(obj);
 		}
 
-		void OnEnable()
+		void Start()
 		{
 			gizmo.IsActive = false;
 		}

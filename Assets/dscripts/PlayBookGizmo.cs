@@ -62,7 +62,7 @@ namespace HaiThere.Playbook
 			IsActive = true;
 		}
 
-		public void OnEnable()
+		public void Awake()
 		{
 			rotaterParent = new GameObject("Rotaters");
 			rotaterParent.transform.SetParent(transform, true);

@@ -1,95 +1,109 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Object for creating the editing functionality of a mesh at runtime
-/// </summary>
-public class PlayBookGizmo : MonoBehaviour
+namespace HaiThere.Playbook
 {
 
-	MeshFilter filter;
-	[SerializeField, Range(1, 100)] int sides = 10;
-	[SerializeField, Range(0.01f, 10f)] float outerRadius = 5f;
-	[SerializeField, Range(0.01f, 10f)] float innerRadius = 2f;
-
-	[SerializeField] List<Vector3> points;
-	[SerializeField] List<int> triangles;
-
-	public void Start()
+	/// <summary>
+	/// Object for creating the editing functionality of a mesh at runtime
+	/// </summary>
+	public class PlayBookGizmo : MonoBehaviour
 	{
-		filter = gameObject.GetComponent<MeshFilter>();
-		CreateRing(filter);
-	}
 
-	void OnValidate()
-	{
-		CreateRing(filter);
-	}
+		[SerializeField] GizmoPieceScale scale;
+		[SerializeField] GizmoPieceMove move;
+		[SerializeField] List<GizmoPieceRotate> rotate;
+		[SerializeField] bool isActive;
 
-	void CreateRing(MeshFilter mf)
-	{
-		if (!ObjectValid(mf))
-			return;
+		GameObject tranformerParent, rotaterParent;
 
-		points = new List<Vector3>();
-		points.AddRange(PointRing(mf.transform.position, sides, outerRadius));
-		points.AddRange(PointRing(mf.transform.position, sides, innerRadius));
+		public PlaybookObject Obj { get; private set; }
 
-		var triSides = points.Count / 2;
-		triangles = new List<int>();
-
-		for (int index = 0; index < triSides; index++)
+		public List<GizmoPiece> AllPieces
 		{
-			triangles.Add(index);
-			triangles.Add(index + triSides);
-			triangles.Add((index + 1) % triSides);
-
-			triangles.Add(index);
-			triangles.Add(triSides + (triSides + index - 1) % triSides);
-			triangles.Add(index + triSides);
+			get
+			{
+				var p = new List<GizmoPiece>();
+				p.AddRange(rotate);
+				p.Add(scale);
+				p.Add(move);
+				return p;
+			}
 		}
 
-		if (!ObjectValid(mf.mesh))
+		public bool IsActive
 		{
-			mf.mesh = new Mesh();
+			get => isActive;
+
+			set
+			{
+				isActive = value;
+				foreach (var piece in AllPieces)
+				{
+					piece.SetActive(value);
+				}
+			}
 		}
 
-		mf.mesh.Clear();
-		mf.mesh.SetVertices(points);
-		mf.mesh.SetTriangles(triangles, 0);
-	}
-
-	public static IEnumerable<Vector3> PointRing(Vector3 center, int sides, float radius)
-	{
-		const float T = 2 * Mathf.PI;
-		var points = new List<Vector3>();
-		var circSteps = 1f / sides;
-		var radianSteps = circSteps * T;
-
-		for (var i = 0; i < sides; i++)
+		public void SetActiveObj(PlaybookObject playbookObject)
 		{
-			var radian = radianSteps * i;
-			points.Add(center
-			           + new Vector3(Mathf.Cos(radian) * radius,
-			                         Mathf.Sin(radian) * radius,
-			                         0)
-			);
+			if (playbookObject == null)
+				return;
+
+			Obj = playbookObject;
+			transform.position = Obj.transform.position;
+
+			foreach (var p in AllPieces)
+			{
+				p.Obj = Obj;
+			}
+
+			IsActive = true;
 		}
 
-		return points;
-	}
-
-	static bool ObjectValid<TObj>(TObj mesh) where TObj : UnityEngine.Object
-	{
-		if (mesh == null)
+		public void OnEnable()
 		{
-			Debug.LogWarning($"Invalid {typeof(TObj)} passed");
-			return false;
+			rotaterParent = new GameObject("Rotaters");
+			rotaterParent.transform.SetParent(transform, true);
+			foreach (var r in rotate)
+			{
+				r.transform.SetParent(rotaterParent.transform);
+				r.OnAxisClicked += SetAxisPosition;
+				scale.OnScaleChange += () => r.Obj = Obj;
+			}
+
+			tranformerParent = new GameObject("Transformer");
+			tranformerParent.transform.SetParent(transform);
+			scale.transform.SetParent(tranformerParent.transform);
+			move.transform.SetParent(tranformerParent.transform);
+			tranformerParent.transform.localRotation = Quaternion.Euler(0, 90, 0);
+			foreach (var p in AllPieces)
+			{
+				p.Create();
+			}
 		}
 
-		return true;
-	}
+		void SetAxisPosition(AxisType axis, Vector3 pos)
+		{
+			tranformerParent.transform.localRotation = axis switch
+			{
+				AxisType.X => Quaternion.Euler(-90, 0, 0),
+				AxisType.Y => Quaternion.Euler(0, 0, 0),
+				AxisType.Z => Quaternion.Euler(0, 90, 0),
+				_ => tranformerParent.transform.localRotation
+			};
 
+			move.Axis = axis;
+		}
+
+		public void Update()
+		{
+			if (Obj == null)
+				return;
+
+			transform.position = Obj.transform.position;
+		}
+
+	}
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace HaiThere.Playbook
 {
@@ -13,9 +14,19 @@ namespace HaiThere.Playbook
 		public static Color32 Active = new Color32(68, 159, 208, 255);
 		public static Color32 InActive = Color.gray;
 
-		public static Color32 Rotation_X = Color.green;
-		public static Color32 Rotation_Y = Color.red;
-		public static Color32 Rotation_Z = Color.blue;
+		public static Color32 AxisX = Color.green;
+		public static Color32 AxisY = Color.red;
+		public static Color32 AxisZ = Color.blue;
 
+		public static Color32 GetAxisColor(AxisType axis)
+		{
+			return axis switch
+			{
+				AxisType.X => AxisX,
+				AxisType.Y => AxisY,
+				AxisType.Z => AxisZ,
+				_ => Active
+			};
+		}
 	}
 }

@@ -28,9 +28,9 @@ namespace HaiThere.Playbook
 			prevAngle = transform.localRotation.eulerAngles;
 			material.color = PlaybookColors.SetInactive(axis switch
 			{
-				AxisType.X => PlaybookColors.Rotation_X,
-				AxisType.Y => PlaybookColors.Rotation_Y,
-				AxisType.Z => PlaybookColors.Rotation_Z,
+				AxisType.X => PlaybookColors.AxisX,
+				AxisType.Y => PlaybookColors.AxisY,
+				AxisType.Z => PlaybookColors.AxisZ,
 				_ => material.color
 			});
 		}
@@ -101,9 +101,9 @@ namespace HaiThere.Playbook
 		{
 			material.color = axis switch
 			{
-				AxisType.X => PlaybookColors.Rotation_X,
-				AxisType.Y => PlaybookColors.Rotation_Y,
-				AxisType.Z => PlaybookColors.Rotation_Z,
+				AxisType.X => PlaybookColors.AxisX,
+				AxisType.Y => PlaybookColors.AxisY,
+				AxisType.Z => PlaybookColors.AxisZ,
 				_ => material.color
 			};
 
@@ -149,9 +149,9 @@ namespace HaiThere.Playbook
 		{
 			material.color = PlaybookColors.SetInactive(axis switch
 			{
-				AxisType.X => PlaybookColors.Rotation_X,
-				AxisType.Y => PlaybookColors.Rotation_Y,
-				AxisType.Z => PlaybookColors.Rotation_Z,
+				AxisType.X => PlaybookColors.AxisX,
+				AxisType.Y => PlaybookColors.AxisY,
+				AxisType.Z => PlaybookColors.AxisZ,
 				_ => material.color
 			});
 		}

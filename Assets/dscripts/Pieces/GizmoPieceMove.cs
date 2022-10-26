@@ -11,23 +11,6 @@ namespace HaiThere.Playbook
 
 		public AxisType Axis { get; set; }
 
-		const float offset = 1.3f;
-
-		float GetOffset()
-		{
-			if (Obj == null)
-				return offset;
-
-			var size = Obj.objectBounds.size;
-
-			return Mathf.Max(
-				       size.x * (Obj.transform.localScale.x * 0.8f),
-				       size.y * (Obj.transform.localScale.y * 0.8f),
-				       size.z * (Obj.transform.localScale.z * 0.8f)
-			       )
-			       + offset;
-		}
-
 		public override void Create()
 		{
 			if (meshFilter.mesh == null && meshFilter.sharedMesh == null)

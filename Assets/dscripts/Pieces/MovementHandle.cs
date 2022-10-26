@@ -105,27 +105,33 @@ public class MovementHandle : MonoBehaviour, IGizmoParent
 	void EndActionHook()
 	{
 		activePiece.transform.localPosition = GetPiecePosition(activeAxis);
-
-		transform.position = new Vector3(
-			activeObj.transform.position.x + activeObj.transform.lossyScale.x,
-			activeObj.transform.position.y - activeObj.transform.lossyScale.y,
-			activeObj.transform.position.z - activeObj.transform.lossyScale.z
-		);
+		MoveToObjectAnchor();
 	}
 
 	public void Attach(GameObject obj)
 	{
 		activeObj = obj;
-		
+
 		foreach (var piece in pieces)
 		{
 			piece.Attach(obj.transform);
 		}
+
+		MoveToObjectAnchor();
 	}
 
 	public Vector3 pointerPos
 	{
 		get => tempCam == null ? Vector3.zero : tempCam.ScreenToWorldPoint(Input.mousePosition);
+	}
+
+	void MoveToObjectAnchor()
+	{
+		transform.position = new Vector3(
+			activeObj.transform.position.x + activeObj.transform.lossyScale.x,
+			activeObj.transform.position.y - activeObj.transform.lossyScale.y,
+			activeObj.transform.position.z - activeObj.transform.lossyScale.z
+		);
 	}
 
 	Vector3 GetPiecePosition(AxisType axis)

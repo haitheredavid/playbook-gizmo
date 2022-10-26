@@ -5,15 +5,19 @@ using HaiThere.Playbook;
 using UnityEngine;
 
 public interface IGizmoParent
-{ }
+{
+	public void Attach(GameObject obj);
+
+	Vector3 pointerPos { get; }
+}
 
 public class MovementHandle : MonoBehaviour, IGizmoParent
 {
 	[Header("Gizmo Props")]
 	[SerializeField] PlayBookGizmo parent;
+	[SerializeField] GameObject tempObj;
 	// TODO: Replace by getting value from parent
 	[SerializeField] Camera tempCam;
-	[SerializeField] AxisType currentAxis;
 
 	[Header("Object Props")]
 	[SerializeField] Mesh mesh;
@@ -22,19 +26,24 @@ public class MovementHandle : MonoBehaviour, IGizmoParent
 
 	[Header("Animations Props")]
 	[SerializeField, Range(1f, 100f)] float movementSpeed = 100f;
-	[SerializeField, Range(0.01f, 10f)] float lineAnimationLength = 0.1f;
-	[SerializeField] float lineLength = 20f;
+	[SerializeField] bool showLine = true;
 
 	[Header("Debug Position")]
-	[SerializeField] bool useLocalPosForDelta;
-	[SerializeField] bool useLocalForAll;
+	[SerializeField] bool useLocalPos = true;
 	[SerializeField] bool logPos;
 
+	public GizmoPieceMove2 activePiece { get; private set; }
+
+	public AxisType activeAxis => activePiece == null ? AxisType.X : activePiece.axis;
+
 	List<GizmoPieceMove2> pieces = new List<GizmoPieceMove2>();
+
+	public GameObject activeObj { get; private set; }
 
 	public void Start()
 	{
 		Initialize();
+		Attach(tempObj);
 	}
 
 	public void Initialize()
@@ -45,9 +54,12 @@ public class MovementHandle : MonoBehaviour, IGizmoParent
 		prefab.GetComponent<MeshCollider>().sharedMesh = prefab.GetComponent<MeshFilter>().mesh;
 		prefab.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Gizmo");
 
+		prefab.showLine = showLine;
+		prefab.isLocal = useLocalPos;
+		prefab.movementSpeed = movementSpeed;
+
 		// hard coded size since its just using a cube but this should change for a model later
 		prefab.transform.localScale = new Vector3(.2f, .2f, .5f);
-		prefab.Parent = this;
 
 		foreach (AxisType axis in Enum.GetValues(typeof(AxisType)))
 		{
@@ -55,13 +67,65 @@ public class MovementHandle : MonoBehaviour, IGizmoParent
 			instance.name = $"Mover_{axis}";
 			instance.transform.localPosition = GetPiecePosition(axis);
 			instance.transform.localRotation = Quaternion.Euler(GetPieceRotation(axis));
-			instance.transform.SetParent(transform);
-			instance.Create(axis);
+			instance.axis = axis;
+			instance.parent = this;
+
+			instance.OnClick += SetActivePiece;
+
+			instance.Create();
 
 			pieces.Add(instance);
 		}
 
 		Destroy(prefab.gameObject);
+	}
+
+	void SetActivePiece(GizmoPieceMove2 piece)
+	{
+		if (piece == null)
+			return;
+
+		if (activePiece != null)
+		{
+			if (activePiece.Equals(piece))
+				return;
+
+			activePiece.OnStart -= StartActionHook;
+			activePiece.OnEnd -= EndActionHook;
+		}
+
+		activePiece = piece;
+		activePiece.OnStart += StartActionHook;
+		activePiece.OnEnd += EndActionHook;
+	}
+
+	void StartActionHook()
+	{ }
+
+	void EndActionHook()
+	{
+		activePiece.transform.localPosition = GetPiecePosition(activeAxis);
+
+		transform.position = new Vector3(
+			activeObj.transform.position.x + activeObj.transform.lossyScale.x,
+			activeObj.transform.position.y - activeObj.transform.lossyScale.y,
+			activeObj.transform.position.z - activeObj.transform.lossyScale.z
+		);
+	}
+
+	public void Attach(GameObject obj)
+	{
+		activeObj = obj;
+		
+		foreach (var piece in pieces)
+		{
+			piece.Attach(obj.transform);
+		}
+	}
+
+	public Vector3 pointerPos
+	{
+		get => tempCam == null ? Vector3.zero : tempCam.ScreenToWorldPoint(Input.mousePosition);
 	}
 
 	Vector3 GetPiecePosition(AxisType axis)

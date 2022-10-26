@@ -2,36 +2,32 @@ using System;
 using System.Collections;
 using HaiThere.Playbook;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class GizmoPieceMove2 : GizmoPiece
+public class GizmoPieceMove2 : GizmoPiece, IPointerClickHandler
 {
-	[SerializeField] GameObject obj;
-	[SerializeField] Camera cam;
+	public AxisType axis { get; set; }
 
-	[SerializeField] AxisType axis;
+	public float movementSpeed { get; set; } = 100f;
 
-	[Header("Positioning Props")]
-	[SerializeField] bool useLocalPosForDelta;
-	[SerializeField] bool useLocalForAll;
-	[SerializeField] bool logPos;
+	public bool showLine { get; set; } = true;
 
-	[Header("Animations Props")]
-	[SerializeField, Range(1f, 100f)] float movementSpeed = 100f;
-	[SerializeField, Range(0.01f, 10f)] float lineAnimationLength = 0.1f;
-	[SerializeField] float lineLength = 20f;
+	public bool isLocal { get; set; } = true;
 
-	[SerializeField] LineRenderer lr;
-	[SerializeField] bool showLine;
+	public IGizmoParent parent { get; set; }
 
-	Material objMaterial;
+	LineRenderer lr;
+	Transform obj;
 	Vector3 positionDelta;
 	Vector3 objDelta;
 	Vector3 newPos;
 
-	Coroutine lineAnimation;
+	public event UnityAction OnStart;
 
-	public IGizmoParent Parent { get; set; }
+	public event UnityAction OnEnd;
+
+	public event UnityAction<GizmoPieceMove2> OnClick;
 
 	Vector3 GetPosition(Vector3 pos, Vector3 offset)
 	{
@@ -43,140 +39,94 @@ public class GizmoPieceMove2 : GizmoPiece
 			_ => pos - offset
 		};
 	}
-
-	public void Create(AxisType axisType)
+	
+	public void Attach(Transform o)
 	{
-		axis = axisType;
-		Create();
+		obj = o;
 	}
 
-	public override void Create()
+	protected override void Setup()
 	{
-		objMaterial = gameObject.GetComponent<MeshRenderer>().material;
-		objMaterial.color = PlaybookColors.SetInactive(PlaybookColors.GetAxisColor(axis));
+		material.color = PlaybookColors.GetAxisColor(axis);
 
 		lr = gameObject.AddComponent<LineRenderer>();
-		lr.SetPositions(new[] { Vector3.zero, Vector3.zero });
+		lr.enabled = showLine;
+		lr.loop = false;
+		lr.endWidth = lr.startWidth = 0.02f;
 		lr.material = Resources.Load<Material>("Line");
 		lr.material.color = PlaybookColors.GetAxisColor(axis);
-		lr.enabled = false;
+		lr.SetPositions(new[] { Vector3.zero, Vector3.zero });
 	}
 
 	public override void OnBeginDrag(PointerEventData data)
 	{
+		positionDelta = GetPosition(data.pointerPressRaycast.worldPosition, isLocal ? transform.localPosition : transform.position);
+
+		if (obj != null)
+			objDelta = obj.position - (isLocal ? transform.localPosition : transform.position);
+
+		OnStart?.Invoke();
+		OnClick?.Invoke(this);
+
 		if (showLine)
-		{
-			lr.enabled = true;
+			lr.SetPosition(0, transform.position);
 
-			if (lineAnimation != null)
-			{
-				StopCoroutine(lineAnimation);
-			}
-
-			lineAnimation = StartCoroutine(LineDraw(Vector3.zero, Vector3.zero, new Vector3(0, 0, lineLength), new Vector3(0, 0, lineLength * -1)));
-		}
-		else
-		{
-			lr.enabled = false;
-		}
-
-		objMaterial.color = Color.yellow;
-		lr.material.color = Color.yellow;
-
-		if (useLocalPosForDelta || useLocalForAll)
-		{
-			positionDelta = GetPosition(data.pointerPressRaycast.worldPosition, transform.localPosition);
-			objDelta = obj.transform.position - transform.localPosition;
-
-			if (logPos)
-				Debug.Log("Starting Local-" + transform.localPosition);
-		}
-		else
-		{
-			positionDelta = GetPosition(data.pointerPressRaycast.worldPosition, transform.position);
-			objDelta = obj.transform.position - transform.position;
-
-			if (logPos)
-				Debug.Log("Starting-" + transform.position);
-		}
+		Debug.Log($"{name}-Start");
 	}
 
 	public override void OnDrag(PointerEventData data)
 	{
 		if (data.pointerCurrentRaycast.worldPosition.x == 0.0f || data.pointerCurrentRaycast.worldPosition.y == 0.0f)
 		{
-			if (logPos)
-				Debug.Log("Position from Mouse");
-
-			newPos = GetPosition(cam.ScreenToWorldPoint(Input.mousePosition), positionDelta);
+			newPos = GetPosition(parent.pointerPos, positionDelta);
 		}
 		else
 		{
-			if (logPos)
-				Debug.Log("Position from Event");
-
 			newPos = GetPosition(data.pointerCurrentRaycast.worldPosition, positionDelta);
 		}
 
 		Vector3 result;
-		if (useLocalForAll)
+		if (isLocal)
 		{
 			result = Vector3.MoveTowards(transform.localPosition, newPos, movementSpeed * Time.deltaTime);
 			transform.localPosition = result;
-
-			if (logPos)
-				Debug.Log("Dragging Local-" + transform.localPosition);
 		}
 		else
 		{
 			result = Vector3.MoveTowards(transform.position, newPos, movementSpeed * Time.deltaTime);
 			transform.position = result;
-
-			if (logPos)
-				Debug.Log("Dragging-" + transform.position);
 		}
 
-		obj.transform.position = result + objDelta;
+		if (obj != null)
+			obj.transform.position = result + objDelta;
+
+		if (showLine)
+			lr.SetPosition(1, transform.position);
+
+		Debug.Log($"{name}-Drag");
 	}
 
 	public override void OnEndDrag(PointerEventData data)
 	{
 		if (showLine)
 		{
-			if (lineAnimation != null)
-			{
-				StopCoroutine(lineAnimation);
-			}
-
-			lineAnimation = StartCoroutine(LineDraw(lr.GetPosition(0), lr.GetPosition(1), Vector3.zero, Vector3.zero));
-		}
-		else
-		{
-			lr.enabled = false;
+			lr.SetPosition(0, transform.position);
 		}
 
-		objMaterial.color = Color.gray;
-
-		if (useLocalForAll && logPos)
-			Debug.Log("Ending Local-" + transform.localPosition);
-		else if (logPos)
-			Debug.Log("Ending-" + transform.position);
+		Debug.Log($"{name}-End");
+		OnEnd?.Invoke();
 	}
 
-	IEnumerator LineDraw(Vector3 startPosA, Vector3 startPosB, Vector3 endPosA, Vector3 endPosB)
+	public bool Equals(GizmoPieceMove2 value)
 	{
-		lr.SetPosition(0, startPosA);
-		lr.SetPosition(1, startPosB);
-
-		for (var t = 0f; t < lineAnimationLength; t += Time.deltaTime)
-		{
-			var step = Mathf.SmoothStep(0, 1, t / lineAnimationLength);
-			lr.SetPosition(0, Vector3.Lerp(Vector3.zero, endPosA, step));
-			lr.SetPosition(1, Vector3.Lerp(Vector3.zero, endPosB, step));
-			yield return null;
-		}
-
-		lr.SetPosition(0, endPosA);
-		lr.SetPosition(0, endPosA);
+		return value != null && value.axis == axis;
 	}
+
+	public void OnPointerClick(PointerEventData data)
+	{
+		Debug.Log($"{name}-Click");
+		OnClick?.Invoke(this);
+	}
+
+	
 }

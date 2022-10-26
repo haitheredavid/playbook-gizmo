@@ -22,9 +22,8 @@ namespace HaiThere.Playbook
 
 		public event UnityAction<AxisType, Vector3> OnAxisClicked;
 
-		public override void OnEnable()
+		public void Start()
 		{
-			base.OnEnable();
 			prevAngle = transform.localRotation.eulerAngles;
 			material.color = PlaybookColors.SetInactive(axis switch
 			{
@@ -50,7 +49,7 @@ namespace HaiThere.Playbook
 			Create();
 		}
 
-		public override void Create()
+		protected override void Setup()
 		{
 			var points = new List<Vector3>();
 

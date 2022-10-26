@@ -11,7 +11,7 @@ namespace HaiThere.Playbook
 
 		public AxisType Axis { get; set; }
 
-		public override void Create()
+		protected override void Setup()
 		{
 			if (meshFilter.mesh == null && meshFilter.sharedMesh == null)
 			{

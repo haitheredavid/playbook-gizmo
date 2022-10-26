@@ -14,7 +14,7 @@ namespace HaiThere.Playbook
 
 		public Vector3 offset => new Vector3(0, 0, 1.5f);
 
-		public override void Create()
+		protected override void Setup()
 		{
 			if (meshFilter.mesh == null && meshFilter.sharedMesh == null)
 			{

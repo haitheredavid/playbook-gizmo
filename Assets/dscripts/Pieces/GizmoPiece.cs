@@ -51,15 +51,17 @@ namespace HaiThere.Playbook
 			return mesh != null;
 		}
 
-		public virtual void OnEnable()
+		public void Create()
 		{
 			meshCollider = gameObject.GetComponent<MeshCollider>();
 			meshFilter = gameObject.GetComponent<MeshFilter>();
 			meshRenderer = gameObject.GetComponent<MeshRenderer>();
 			material = meshRenderer.material;
+			
+			Setup();
 		}
 
-		public abstract void Create();
+		protected abstract void Setup();
 
 		public abstract void OnDrag(PointerEventData eventData);
 

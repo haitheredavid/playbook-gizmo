@@ -1,3 +1,4 @@
+using System;
 using HaiThere.Playbook;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,75 +9,38 @@ public class MoverTester : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
 	[SerializeField] GameObject obj;
 	[SerializeField] Camera cam;
 	[SerializeField] float speed = 100f;
+	
+	[SerializeField] AxisType axis;
 
-	[SerializeField] bool useDragHandler;
+	[Header("Local Position Test ")]
+	[SerializeField] bool useLocalPosForDelta;
+	[SerializeField] bool useLocalForAll;
+	[SerializeField] bool logPos;
+
+	[SerializeField] LineRenderer lr;
 
 	Material objMaterial;
 	Vector3 positionDelta;
 	Vector3 objDelta;
 	Vector3 newPos;
 
-	Vector3 GetLockedMousePos(AxisType axisType = AxisType.Z)
+	Vector3 GetPosition(Vector3 pos, Vector3 offset)
 	{
-		var mp = cam.ScreenToWorldPoint(Input.mousePosition);
-		switch (axisType)
+		return axis switch
 		{
-			case AxisType.X:
-				mp.x = positionDelta.x;
-				break;
-			case AxisType.Y:
-				mp.y = positionDelta.y;
-				break;
-			case AxisType.Z:
-				mp.z = positionDelta.z;
-				break;
-		}
-
-		return mp;
+			AxisType.X => new Vector3(pos.x - offset.x, positionDelta.y, positionDelta.z),
+			AxisType.Y => new Vector3(positionDelta.x, pos.y - offset.y, positionDelta.z),
+			AxisType.Z => new Vector3(positionDelta.x, positionDelta.y, pos.z - offset.z),
+			_ => pos - offset
+		};
 	}
 
 	void Start()
 	{
 		objMaterial = gameObject.GetComponent<MeshRenderer>().material;
 		objMaterial.color = Color.grey;
-	}
 
-	void OnMouseEnter()
-	{
-		if (useDragHandler)
-			return;
-
-		objMaterial.color = Color.red;
-	}
-
-	void OnMouseDown()
-	{
-		if (useDragHandler)
-			return;
-
-		objMaterial.color = Color.yellow;
-		positionDelta = transform.position - GetLockedMousePos();
-	}
-
-	void OnMouseDrag()
-	{
-		if (useDragHandler)
-			return;
-
-		newPos = GetLockedMousePos();
-		transform.position = Vector3.MoveTowards(
-			transform.position,
-			new Vector3(newPos.x + positionDelta.x, newPos.y + positionDelta.y, positionDelta.z),
-			speed * Time.deltaTime
-		);
-	}
-
-	void OnMouseExit()
-	{
-		if (useDragHandler)
-			return;
-
-		objMaterial.color = Color.grey;
+		lr.enabled = false;
 	}
 
 	void OnDrawGizmos()
@@ -91,39 +55,75 @@ public class MoverTester : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndD
 
 	public void OnBeginDrag(PointerEventData data)
 	{
-		if (!useDragHandler)
-			return;
-
+		lr.enabled = true;
 		objMaterial.color = Color.yellow;
-		positionDelta = data.pointerPressRaycast.worldPosition - transform.position;
-		objDelta = obj.transform.position - transform.position;
+		lr.material.color = Color.yellow;
+
+		if (useLocalPosForDelta || useLocalForAll)
+		{
+			positionDelta = GetPosition(data.pointerPressRaycast.worldPosition, transform.localPosition);
+			objDelta = obj.transform.position - transform.localPosition;
+
+			if (logPos)
+				Debug.Log("Starting Local-" + transform.localPosition);
+		}
+		else
+		{
+			positionDelta = GetPosition(data.pointerPressRaycast.worldPosition, transform.position);
+			objDelta = obj.transform.position - transform.position;
+
+			if (logPos)
+				Debug.Log("Starting-" + transform.position);
+		}
 	}
 
 	public void OnDrag(PointerEventData data)
 	{
-		if (!useDragHandler)
-			return;
-
 		if (data.pointerCurrentRaycast.worldPosition.x == 0.0f || data.pointerCurrentRaycast.worldPosition.y == 0.0f)
 		{
-			newPos = GetLockedMousePos();
+			if (logPos)
+				Debug.Log("Position from Mouse");
+
+			newPos = GetPosition(cam.ScreenToWorldPoint(Input.mousePosition), positionDelta);
 		}
 		else
 		{
-			newPos = data.pointerCurrentRaycast.worldPosition - positionDelta;
+			if (logPos)
+				Debug.Log("Position from Event");
+
+			newPos = GetPosition(data.pointerCurrentRaycast.worldPosition, positionDelta);
 		}
 
-		var result = Vector3.MoveTowards(transform.position, newPos, speed * Time.deltaTime);
-		transform.position = result;
+		Vector3 result;
+		if (useLocalForAll)
+		{
+			result = Vector3.MoveTowards(transform.localPosition, newPos, speed * Time.deltaTime);
+			transform.localPosition = result;
+
+			if (logPos)
+				Debug.Log("Dragging Local-" + transform.localPosition);
+		}
+		else
+		{
+			result = Vector3.MoveTowards(transform.position, newPos, speed * Time.deltaTime);
+			transform.position = result;
+
+			if (logPos)
+				Debug.Log("Dragging-" + transform.position);
+		}
+
 		obj.transform.position = result + objDelta;
 	}
 
 	public void OnEndDrag(PointerEventData data)
 	{
-		if (!useDragHandler)
-			return;
-
+		lr.enabled = false;
 		objMaterial.color = Color.gray;
+
+		if (useLocalForAll && logPos)
+			Debug.Log("Ending Local-" + transform.localPosition);
+		else if (logPos)
+			Debug.Log("Ending-" + transform.position);
 	}
 
 }

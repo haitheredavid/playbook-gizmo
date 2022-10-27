@@ -12,7 +12,10 @@ namespace HaiThere.Playbook
     public Camera viewer;
     public bool isParented = false;
     public bool isLocal = true;
+    public bool showLine = true;
     [SerializeField] protected GameObject obj;
+
+    [Header("Transform Props")]
     [Range(1f, 100f)] public float movementSpeed = 100f;
     [SerializeField, Range(0.0f, 1.0f)] protected float positionOffset = 0.5f;
     [SerializeField, Range(0.0f, 1.0f)] protected float scaleOffset = 0.5f;
@@ -53,6 +56,26 @@ namespace HaiThere.Playbook
       {
         p.SetActive(status);
       }
+    }
+    public override void Create()
+    {
+      var prefab = BuildPrefab();
+      
+      foreach (AxisType axis in Enum.GetValues(typeof(AxisType)))
+      {
+        var instance = Instantiate(prefab, transform);
+        instance.name = $"{axis}";
+        instance.transform.localPosition = GetPiecePosition(axis);
+        instance.transform.localRotation = Quaternion.Euler(GetPieceRotation(axis));
+        instance.axis = axis;
+        instance.parent = this;
+        instance.OnSet += SetActivePiece;
+        instance.Create();
+
+        pieces.Add(instance);
+      }
+
+      Destroy(prefab.gameObject);
     }
 
     protected void SetActivePiece(GizmoPiece piece)
@@ -124,8 +147,10 @@ namespace HaiThere.Playbook
       prefab.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Gizmo");
       prefab.movementSpeed = movementSpeed;
       prefab.isLocal = isLocal;
+      prefab.transform.localScale = new Vector3(.2f, .2f, .5f);
       return prefab;
     }
+    protected abstract GizmoPiece BuildPrefab();
 
   }
 }

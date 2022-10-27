@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 namespace HaiThere.Playbook
 {
-	public class GizmoPieceScale : GizmoPiece
+	public class GizmoPieceScale : PlaybookGizmoPiece
 	{
 
 		Vector3 scale = Vector3.one;
@@ -14,7 +14,7 @@ namespace HaiThere.Playbook
 
 		public Vector3 offset => new Vector3(0, 0, 1.5f);
 
-		protected override void Setup()
+		protected override void SetupPiece()
 		{
 			if (meshFilter.mesh == null && meshFilter.sharedMesh == null)
 			{

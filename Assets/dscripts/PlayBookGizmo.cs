@@ -11,20 +11,29 @@ namespace HaiThere.Playbook
 	public class PlayBookGizmo : MonoBehaviour
 	{
 
+		[SerializeField] PlaybookUser user;
+		[SerializeField] [Range(1f, 100f)] float movementSpeed = 100f;
+
 		[SerializeField] GizmoPieceScale scale;
 		[SerializeField] GizmoPieceMove move;
 		[SerializeField] List<GizmoPieceRotate> rotate;
 		[SerializeField] bool isActive;
 
+		[SerializeField] Vector3 anchorOffset = new Vector3(0.2f, 0.0f, 0.2f);
+
+		[SerializeField] MovementHandle movementHandle;
+
 		GameObject tranformerParent, rotaterParent;
 
 		public PlaybookObject Obj { get; private set; }
 
-		public List<GizmoPiece> AllPieces
+		public List<PlaybookGizmoElement> gizmos { get; private set; }
+
+		public List<PlaybookGizmoPiece> AllPieces
 		{
 			get
 			{
-				var p = new List<GizmoPiece>();
+				var p = new List<PlaybookGizmoPiece>();
 				p.AddRange(rotate);
 				p.Add(scale);
 				p.Add(move);
@@ -46,6 +55,19 @@ namespace HaiThere.Playbook
 			}
 		}
 
+		public void CreateGizmo(PlaybookUser newUser)
+		{
+			if (newUser == null)
+			{
+				Debug.Log("Playbook user is not valid to set");
+				return;
+			}
+
+			user = newUser;
+			movementHandle.movementSpeed = movementSpeed;
+			movementHandle.Create();
+		}
+
 		public void SetActiveObj(PlaybookObject playbookObject)
 		{
 			if (playbookObject == null)
@@ -64,38 +86,45 @@ namespace HaiThere.Playbook
 
 		public void Awake()
 		{
-			rotaterParent = new GameObject("Rotaters");
-			rotaterParent.transform.SetParent(transform, true);
-			foreach (var r in rotate)
+			if (movementHandle == null)
 			{
-				r.transform.SetParent(rotaterParent.transform);
-				r.OnAxisClicked += SetAxisPosition;
-				scale.OnScaleChange += () => r.Obj = Obj;
+				Debug.Log("Movement Handle is not valid");
+				return;
 			}
 
-			tranformerParent = new GameObject("Transformer");
-			tranformerParent.transform.SetParent(transform);
-			scale.transform.SetParent(tranformerParent.transform);
-			move.transform.SetParent(tranformerParent.transform);
-			tranformerParent.transform.localRotation = Quaternion.Euler(0, 90, 0);
-			foreach (var p in AllPieces)
-			{
-				p.Create();
-			}
+			gizmos = new List<PlaybookGizmoElement>();
+
+			movementHandle.OnActionComplete += Reset;
+
+			// rotaterParent = new GameObject("");
+			// rotaterParent.transform.SetParent(transform, true);
+			// foreach (var r in rotate)
+			// {
+			// 	r.transform.SetParent(rotaterParent.transform);
+			// 	r.OnAxisClicked += SetAxisPosition;
+			// 	scale.OnScaleChange += () => r.Obj = Obj;
+			// }
+			//
+			// tranformerParent = new GameObject("Transformer");
+			// tranformerParent.transform.SetParent(transform);
+			// scale.transform.SetParent(tranformerParent.transform);
+			// move.transform.SetParent(tranformerParent.transform);
+			// tranformerParent.transform.localRotation = Quaternion.Euler(0, 90, 0);
+			// foreach (var p in AllPieces)
+			// {
+			// 	p.Create();
+			// }
 		}
 
-		void SetAxisPosition(AxisType axis, Vector3 pos)
+		void Reset()
 		{
-			tranformerParent.transform.localRotation = axis switch
-			{
-				AxisType.X => Quaternion.Euler(-90, 0, 0),
-				AxisType.Y => Quaternion.Euler(0, 0, 0),
-				AxisType.Z => Quaternion.Euler(0, 90, 0),
-				_ => tranformerParent.transform.localRotation
-			};
-
-			move.Axis = axis;
+			transform.position = Obj != null ? new Vector3(
+				Obj.transform.position.x - Obj.transform.localScale.x * 0.5f + anchorOffset.x,
+				Obj.transform.position.y - Obj.transform.localScale.y * 0.5f + anchorOffset.y,
+				Obj.transform.position.z - Obj.transform.localScale.z * 0.5f + anchorOffset.z
+			) : Vector3.zero;
 		}
+
 
 		public void Update()
 		{

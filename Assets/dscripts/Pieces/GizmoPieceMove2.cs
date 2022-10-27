@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class GizmoPieceMove2 : GizmoPiece, IPointerClickHandler
+public class GizmoPieceMove2 : PlaybookGizmoPiece, IPointerClickHandler
 {
 	public AxisType axis { get; set; }
 
@@ -45,7 +45,7 @@ public class GizmoPieceMove2 : GizmoPiece, IPointerClickHandler
 		obj = o;
 	}
 
-	protected override void Setup()
+	protected override void SetupPiece()
 	{
 		material.color = PlaybookColors.GetAxisColor(axis);
 

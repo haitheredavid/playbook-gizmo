@@ -8,6 +8,8 @@ namespace HaiThere.Playbook
 	public class PlaybookObject : MonoBehaviour, IPointerClickHandler
 	{
 
+		public static Vector3 GetLowestPoint<T>(Transform origin) where T : Collider => origin.GetComponent<T>().bounds.min;
+
 		public event UnityAction<PlaybookObject> OnClicked;
 
 		Bounds bounds;
@@ -57,6 +59,6 @@ namespace HaiThere.Playbook
 		{
 			OnClicked?.Invoke(this);
 		}
-		
+
 	}
 }

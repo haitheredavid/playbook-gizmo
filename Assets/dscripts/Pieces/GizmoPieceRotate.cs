@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 namespace HaiThere.Playbook
 {
 
-	public class GizmoPieceRotate : GizmoPiece, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerClickHandler
+	public class GizmoPieceRotate : PlaybookGizmoPiece, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerClickHandler
 	{
 
 		[SerializeField] AxisType axis;
@@ -49,7 +49,7 @@ namespace HaiThere.Playbook
 			Create();
 		}
 
-		protected override void Setup()
+		protected override void SetupPiece()
 		{
 			var points = new List<Vector3>();
 

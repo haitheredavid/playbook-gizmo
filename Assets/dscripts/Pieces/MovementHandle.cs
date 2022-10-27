@@ -1,160 +1,152 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using HaiThere.Playbook;
 using UnityEngine;
+using UnityEngine.Events;
 
 public interface IGizmoParent
 {
-	public void Attach(GameObject obj);
+  public void Attach(GameObject obj);
 
-	Vector3 pointerPos { get; }
+  Vector3 pointerPos { get; }
 }
 
-public class MovementHandle : MonoBehaviour, IGizmoParent
+public class MovementHandle : PlaybookGizmoElement, IGizmoParent
 {
-	[Header("Gizmo Props")]
-	[SerializeField] PlayBookGizmo parent;
-	[SerializeField] GameObject tempObj;
-	// TODO: Replace by getting value from parent
-	[SerializeField] Camera tempCam;
+  [Header("Gizmo Props")]
+  public Camera viewer;
+  [Range(1f, 100f)] public float movementSpeed = 100f;
 
-	[Header("Object Props")]
-	[SerializeField] Mesh mesh;
-	[SerializeField, Range(0.0f, 1.0f)] float positionOffset = 0.5f;
-	[SerializeField, Range(0.0f, 1.0f)] float scaleOffset = 0.5f;
+  [Header("Handler Props")]
+  [SerializeField] Mesh mesh;
+  [SerializeField, Range(0.0f, 1.0f)] float positionOffset = 0.5f;
+  [SerializeField, Range(0.0f, 1.0f)] float scaleOffset = 0.5f;
+  [SerializeField] Vector3 anchorOffset = new Vector3(0.2f, 0.0f, 0.2f);
+  [SerializeField] bool showLine = true;
 
-	[Header("Animations Props")]
-	[SerializeField, Range(1f, 100f)] float movementSpeed = 100f;
-	[SerializeField] bool showLine = true;
+  [Header("Debug Position")]
+  [SerializeField] bool useLocalPos = true;
+  [SerializeField] bool logPos = false;
 
-	[Header("Debug Position")]
-	[SerializeField] bool useLocalPos = true;
-	[SerializeField] bool logPos;
+  public GizmoPieceMove2 activePiece { get; private set; }
 
-	public GizmoPieceMove2 activePiece { get; private set; }
+  List<GizmoPieceMove2> pieces = new List<GizmoPieceMove2>();
 
-	public AxisType activeAxis => activePiece == null ? AxisType.X : activePiece.axis;
+  public GameObject activeObj { get; private set; }
 
-	List<GizmoPieceMove2> pieces = new List<GizmoPieceMove2>();
+  public event UnityAction OnActionComplete;
 
-	public GameObject activeObj { get; private set; }
+  public override void Create()
+  {
+    var prefab = new GameObject().AddComponent<GizmoPieceMove2>();
 
-	public void Start()
-	{
-		Initialize();
-		Attach(tempObj);
-	}
+    prefab.GetComponent<MeshFilter>().mesh = mesh;
+    prefab.GetComponent<MeshCollider>().sharedMesh = prefab.GetComponent<MeshFilter>().mesh;
+    prefab.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Gizmo");
 
-	public void Initialize()
-	{
-		var prefab = new GameObject().AddComponent<GizmoPieceMove2>();
+    prefab.showLine = showLine;
+    prefab.isLocal = useLocalPos;
+    prefab.movementSpeed = movementSpeed;
 
-		prefab.GetComponent<MeshFilter>().mesh = mesh;
-		prefab.GetComponent<MeshCollider>().sharedMesh = prefab.GetComponent<MeshFilter>().mesh;
-		prefab.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Gizmo");
+    // hard coded size since its just using a cube but this should change for a model later
+    prefab.transform.localScale = new Vector3(.2f, .2f, .5f);
 
-		prefab.showLine = showLine;
-		prefab.isLocal = useLocalPos;
-		prefab.movementSpeed = movementSpeed;
+    foreach (AxisType axis in Enum.GetValues(typeof(AxisType)))
+    {
+      var instance = Instantiate(prefab, transform);
+      instance.name = $"Mover_{axis}";
+      instance.transform.localPosition = GetPiecePosition(axis);
+      instance.transform.localRotation = Quaternion.Euler(GetPieceRotation(axis));
+      instance.axis = axis;
+      instance.parent = this;
 
-		// hard coded size since its just using a cube but this should change for a model later
-		prefab.transform.localScale = new Vector3(.2f, .2f, .5f);
+      instance.OnClick += SetActivePiece;
 
-		foreach (AxisType axis in Enum.GetValues(typeof(AxisType)))
-		{
-			var instance = Instantiate(prefab, transform);
-			instance.name = $"Mover_{axis}";
-			instance.transform.localPosition = GetPiecePosition(axis);
-			instance.transform.localRotation = Quaternion.Euler(GetPieceRotation(axis));
-			instance.axis = axis;
-			instance.parent = this;
+      instance.Create();
 
-			instance.OnClick += SetActivePiece;
+      pieces.Add(instance);
+    }
 
-			instance.Create();
+    Destroy(prefab.gameObject);
+  }
 
-			pieces.Add(instance);
-		}
+  public void Attach(GameObject obj)
+  {
+    activeObj = obj;
 
-		Destroy(prefab.gameObject);
-	}
+    foreach (var piece in pieces)
+    {
+      piece.Attach(obj.transform);
+    }
 
-	void SetActivePiece(GizmoPieceMove2 piece)
-	{
-		if (piece == null)
-			return;
+    MoveToObjectAnchor();
+  }
 
-		if (activePiece != null)
-		{
-			if (activePiece.Equals(piece))
-				return;
+  void SetActivePiece(GizmoPieceMove2 piece)
+  {
+    if (piece == null)
+      return;
 
-			activePiece.OnStart -= StartActionHook;
-			activePiece.OnEnd -= EndActionHook;
-		}
+    if (activePiece != null)
+    {
+      if (activePiece.Equals(piece))
+        return;
 
-		activePiece = piece;
-		activePiece.OnStart += StartActionHook;
-		activePiece.OnEnd += EndActionHook;
-	}
+      activePiece.OnStart -= StartActionHook;
+      activePiece.OnEnd -= EndActionHook;
+    }
 
-	void StartActionHook()
-	{ }
+    activePiece = piece;
+    activePiece.OnStart += StartActionHook;
+    activePiece.OnEnd += EndActionHook;
+  }
 
-	void EndActionHook()
-	{
-		activePiece.transform.localPosition = GetPiecePosition(activeAxis);
-		MoveToObjectAnchor();
-	}
+  void StartActionHook()
+  {
+  }
 
-	public void Attach(GameObject obj)
-	{
-		activeObj = obj;
+  void EndActionHook()
+  {
+    activePiece.transform.localPosition = GetPiecePosition(activePiece.axis);
+    OnActionComplete?.Invoke();
+    MoveToObjectAnchor();
+  }
 
-		foreach (var piece in pieces)
-		{
-			piece.Attach(obj.transform);
-		}
+  public Vector3 pointerPos
+  {
+    get => viewer == null ? Vector3.zero : viewer.ScreenToWorldPoint(Input.mousePosition);
+  }
 
-		MoveToObjectAnchor();
-	}
+  void MoveToObjectAnchor()
+  {
+    transform.position = new Vector3(
+      activeObj.transform.position.x - activeObj.transform.localScale.x * 0.5f + anchorOffset.x,
+      activeObj.transform.position.y - activeObj.transform.localScale.y * 0.5f + anchorOffset.y,
+      activeObj.transform.position.z - activeObj.transform.localScale.z * 0.5f + anchorOffset.z
+    );
+  }
 
-	public Vector3 pointerPos
-	{
-		get => tempCam == null ? Vector3.zero : tempCam.ScreenToWorldPoint(Input.mousePosition);
-	}
+  Vector3 GetPiecePosition(AxisType axis)
+  {
+    var offset = Mathf.Max(positionOffset, scaleOffset * 0.5f);
+    return axis switch
+    {
+      AxisType.X => new Vector3(offset, 0, 0),
+      AxisType.Y => new Vector3(0, offset, 0),
+      AxisType.Z => new Vector3(0, 0, offset),
+      _ => Vector3.zero
+    };
+  }
 
-	void MoveToObjectAnchor()
-	{
-		transform.position = new Vector3(
-			activeObj.transform.position.x + activeObj.transform.lossyScale.x,
-			activeObj.transform.position.y - activeObj.transform.lossyScale.y,
-			activeObj.transform.position.z - activeObj.transform.lossyScale.z
-		);
-	}
-
-	Vector3 GetPiecePosition(AxisType axis)
-	{
-		var offset = Mathf.Max(positionOffset, scaleOffset * 0.5f);
-		return axis switch
-		{
-			AxisType.X => new Vector3(offset, 0, 0),
-			AxisType.Y => new Vector3(0, offset, 0),
-			AxisType.Z => new Vector3(0, 0, offset),
-			_ => Vector3.zero
-		};
-	}
-
-	Vector3 GetPieceRotation(AxisType axis)
-	{
-		return axis switch
-		{
-			AxisType.X => new Vector3(0, -90, -90),
-			AxisType.Y => new Vector3(90, 0, 0),
-			AxisType.Z => new Vector3(0, 0, -90),
-			_ => Vector3.zero
-		};
-	}
+  Vector3 GetPieceRotation(AxisType axis)
+  {
+    return axis switch
+    {
+      AxisType.X => new Vector3(0, -90, -90),
+      AxisType.Y => new Vector3(90, 0, 0),
+      AxisType.Z => new Vector3(0, 0, -90),
+      _ => Vector3.zero
+    };
+  }
 
 }

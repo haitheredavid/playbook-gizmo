@@ -4,14 +4,14 @@ using UnityEngine.EventSystems;
 
 namespace HaiThere.Playbook
 {
-	public class GizmoPieceMove : GizmoPiece
+	public class GizmoPieceMove : PlaybookGizmoPiece
 	{
 
 		Vector3 prevPos = Vector3.zero;
 
 		public AxisType Axis { get; set; }
 
-		protected override void Setup()
+		protected override void SetupPiece()
 		{
 			if (meshFilter.mesh == null && meshFilter.sharedMesh == null)
 			{

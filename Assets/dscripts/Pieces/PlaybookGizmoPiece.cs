@@ -12,7 +12,7 @@ namespace HaiThere.Playbook
 	}
 
 	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
-	public abstract class GizmoPiece : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
+	public abstract class PlaybookGizmoPiece : PlaybookGizmoElement, IDragHandler, IBeginDragHandler, IEndDragHandler
 	{
 
 		[SerializeField, HideInInspector] protected MeshFilter meshFilter;
@@ -51,17 +51,17 @@ namespace HaiThere.Playbook
 			return mesh != null;
 		}
 
-		public void Create()
+		public override void Create()
 		{
 			meshCollider = gameObject.GetComponent<MeshCollider>();
 			meshFilter = gameObject.GetComponent<MeshFilter>();
 			meshRenderer = gameObject.GetComponent<MeshRenderer>();
 			material = meshRenderer.material;
-			
-			Setup();
+
+			SetupPiece();
 		}
 
-		protected abstract void Setup();
+		protected abstract void SetupPiece();
 
 		public abstract void OnDrag(PointerEventData eventData);
 

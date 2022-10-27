@@ -4,69 +4,72 @@ using UnityEngine.EventSystems;
 
 namespace HaiThere.Playbook
 {
-	public enum AxisType
-	{
-		X,
-		Y,
-		Z
-	}
+  public enum AxisType
+  {
+    X,
+    Y,
+    Z
+  }
 
-	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
-	public abstract class PlaybookGizmoPiece : PlaybookGizmoElement, IDragHandler, IBeginDragHandler, IEndDragHandler
-	{
+  [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
+  public abstract class PlaybookGizmoPiece : PlaybookGizmoElement, IDragHandler, IBeginDragHandler, IEndDragHandler
+  {
 
-		[SerializeField, HideInInspector] protected MeshFilter meshFilter;
-		[SerializeField, HideInInspector] protected MeshRenderer meshRenderer;
-		[SerializeField, HideInInspector] protected MeshCollider meshCollider;
+    [SerializeField, HideInInspector] protected MeshFilter meshFilter;
+    [SerializeField, HideInInspector] protected MeshRenderer meshRenderer;
+    [SerializeField, HideInInspector] protected MeshCollider meshCollider;
 
-		[SerializeField, Range(0.01f, 10f)] protected float precision = 0.5f;
+    [SerializeField, Range(0.01f, 10f)] protected float precision = 0.5f;
 
-		protected Material material;
+    protected Material material;
 
-		PlaybookObject _obj;
 
-		public PlaybookObject Obj
-		{
-			get => _obj;
-			set
-			{
-				_obj = value;
-				UpdateToNewObject();
-			}
-		}
+    PlaybookObject _obj;
 
-		protected virtual void UpdateToNewObject()
-		{ }
+    public PlaybookObject Obj
+    {
+      get => _obj;
+      set
+      {
+        _obj = value;
+        UpdateToNewObject();
+      }
+    }
+    public Transform focusObj { get; set; }
 
-		public virtual void SetActive(bool status)
-		{
-			if (meshRenderer)
-				meshRenderer.enabled = status;
-			if (meshCollider)
-				meshCollider.enabled = status;
-		}
+    protected virtual void UpdateToNewObject()
+    {
+    }
 
-		protected static bool ObjectValid<TObj>(TObj mesh) where TObj : UnityEngine.Object
-		{
-			return mesh != null;
-		}
+    public virtual void SetActive(bool status)
+    {
+      if (meshRenderer)
+        meshRenderer.enabled = status;
+      if (meshCollider)
+        meshCollider.enabled = status;
+    }
 
-		public override void Create()
-		{
-			meshCollider = gameObject.GetComponent<MeshCollider>();
-			meshFilter = gameObject.GetComponent<MeshFilter>();
-			meshRenderer = gameObject.GetComponent<MeshRenderer>();
-			material = meshRenderer.material;
+    protected static bool ObjectValid<TObj>(TObj mesh) where TObj : UnityEngine.Object
+    {
+      return mesh != null;
+    }
 
-			SetupPiece();
-		}
+    public override void Create()
+    {
+      meshCollider = gameObject.GetComponent<MeshCollider>();
+      meshFilter = gameObject.GetComponent<MeshFilter>();
+      meshRenderer = gameObject.GetComponent<MeshRenderer>();
+      material = meshRenderer.material;
 
-		protected abstract void SetupPiece();
+      SetupPiece();
+    }
 
-		public abstract void OnDrag(PointerEventData eventData);
+    protected abstract void SetupPiece();
 
-		public abstract void OnBeginDrag(PointerEventData eventData);
+    public abstract void OnDrag(PointerEventData eventData);
 
-		public abstract void OnEndDrag(PointerEventData eventData);
-	}
+    public abstract void OnBeginDrag(PointerEventData eventData);
+
+    public abstract void OnEndDrag(PointerEventData eventData);
+  }
 }

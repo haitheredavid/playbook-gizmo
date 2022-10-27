@@ -1,10 +1,10 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 namespace HaiThere.Playbook
 {
   public class GizmoComponentScaler : GizmoComponent
   {
     protected override GizmoPiece BuildPrefab() => BuildPrefab<GizmoPieceScale>();
 
+    protected override Mesh CreateMesh() => PlaybookMeshBuilder.CreateCone(1f, 1f);
   }
 }

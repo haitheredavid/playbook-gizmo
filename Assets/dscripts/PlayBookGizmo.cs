@@ -67,18 +67,17 @@ namespace HaiThere.Playbook
       gizmos = new List<GizmoComponent>();
 
       mover = new GameObject("Mover").AddComponent<GizmoComponentMover>();
-      mover.transform.SetParent(transform);
-      mover.movementSpeed = movementSpeed;
-      mover.viewer = user.Viewer;
-      mover.isParented = true;
-      mover.OnActionComplete += SetPosition;
-      gizmos.Add(mover);
-
       scaler = new GameObject("Scaler").AddComponent<GizmoComponentScaler>();
+      gizmos.Add(mover);
       gizmos.Add(scaler);
 
       foreach (var gizmo in gizmos)
       {
+        gizmo.transform.SetParent(transform);
+        gizmo.movementSpeed = movementSpeed;
+        gizmo.viewer = user.Viewer;
+        gizmo.isParented = true;
+        gizmo.OnActionComplete += SetPosition;
         gizmo.Create();
       }
 

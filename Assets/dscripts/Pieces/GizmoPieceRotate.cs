@@ -7,195 +7,196 @@ using UnityEngine.EventSystems;
 namespace HaiThere.Playbook
 {
 
-	public class GizmoPieceRotate : GizmoPiece, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerClickHandler
-	{
+  public class GizmoPieceRotate : GizmoPiece, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerClickHandler
+  {
 
-		[SerializeField] AxisType axis;
+    [SerializeField] AxisType axis;
 
-		[SerializeField, Range(1, 100)] int sides = 50;
+    [SerializeField, Range(1, 100)] int sides = 50;
 
-		[SerializeField, Range(0f, 5f)] float offsetSize = 1f;
-		[SerializeField, Range(0.01f, 10f)] float innerRadius = 2f;
+    [SerializeField, Range(0f, 5f)] float offsetSize = 1f;
+    [SerializeField, Range(0.01f, 10f)] float innerRadius = 2f;
 
-		Vector3 prevAngle;
-		Vector3 objAngle;
-		
-		public override event UnityAction<GizmoPiece> OnSet;
-		public override event UnityAction OnComplete;
+    Vector3 prevAngle;
+    Vector3 objAngle;
 
-		public event UnityAction<AxisType, Vector3> OnAxisClicked;
+    public event UnityAction<AxisType, Vector3> OnAxisClicked;
 
-		public void Start()
-		{
-			prevAngle = transform.localRotation.eulerAngles;
-			material.color = PlaybookColors.SetInactive(axis switch
-			{
-				AxisType.X => PlaybookColors.AxisX,
-				AxisType.Y => PlaybookColors.AxisY,
-				AxisType.Z => PlaybookColors.AxisZ,
-				_ => material.color
-			});
-		}
+    public void Start()
+    {
+      prevAngle = transform.localRotation.eulerAngles;
+      material.color = PlaybookColors.SetInactive(axis switch
+      {
+        AxisType.X => PlaybookColors.AxisX,
+        AxisType.Y => PlaybookColors.AxisY,
+        AxisType.Z => PlaybookColors.AxisZ,
+        _ => material.color
+      });
+    }
 
-		public void Create(AxisType axisType)
-		{
-			axis = axisType;
+    public void Create(AxisType axisType)
+    {
+      axis = axisType;
 
-			transform.localRotation = axis switch
-			{
-				AxisType.X => Quaternion.Euler(-90, 0, 0),
-				AxisType.Y => Quaternion.Euler(0, 0, 0),
-				AxisType.Z => Quaternion.Euler(0, 90, 0),
-				_ => transform.localRotation
-			};
+      transform.localRotation = axis switch
+      {
+        AxisType.X => Quaternion.Euler(-90, 0, 0),
+        AxisType.Y => Quaternion.Euler(0, 0, 0),
+        AxisType.Z => Quaternion.Euler(0, 90, 0),
+        _ => transform.localRotation
+      };
 
-			Create();
-		}
+      Create();
+    }
 
-		protected override void SetupPiece()
-		{
-			var points = new List<Vector3>();
+    public override void Create()
+    {
+      base.Create();
+      var points = new List<Vector3>();
 
-			points.AddRange(PointRing(meshFilter.transform.localPosition, sides, innerRadius));
-			points.AddRange(PointRing(meshFilter.transform.localPosition, sides, innerRadius + offsetSize));
+      points.AddRange(PointRing(meshFilter.transform.localPosition, sides, innerRadius));
+      points.AddRange(PointRing(meshFilter.transform.localPosition, sides, innerRadius + offsetSize));
 
-			var triSides = points.Count / 2;
-			var triangles = new List<int>();
+      var triSides = points.Count / 2;
+      var triangles = new List<int>();
 
-			for (int index = 0; index < triSides; index++)
-			{
-				triangles.Add(index);
-				triangles.Add(index + triSides);
-				triangles.Add((index + 1) % triSides);
+      for (int index = 0; index < triSides; index++)
+      {
+        triangles.Add(index);
+        triangles.Add(index + triSides);
+        triangles.Add((index + 1) % triSides);
 
-				triangles.Add(index);
-				triangles.Add(triSides + (triSides + index - 1) % triSides);
-				triangles.Add(index + triSides);
-			}
+        triangles.Add(index);
+        triangles.Add(triSides + (triSides + index - 1) % triSides);
+        triangles.Add(index + triSides);
+      }
 
-			if (Application.isPlaying)
-			{
-				if (!ObjectValid(meshFilter.mesh))
-				{
-					meshFilter.mesh = new Mesh();
-				}
+      if (Application.isPlaying)
+      {
+        if (!ObjectValid(meshFilter.mesh))
+        {
+          meshFilter.mesh = new Mesh();
+        }
 
-				meshFilter.mesh.Clear();
-				meshFilter.mesh.SetVertices(points);
-				meshFilter.mesh.SetTriangles(triangles, 0);
-				meshCollider.sharedMesh = meshFilter.mesh;
-			}
-			else
-			{
-				if (!ObjectValid(meshFilter.sharedMesh))
-				{
-					meshFilter.sharedMesh = new Mesh();
-				}
+        meshFilter.mesh.Clear();
+        meshFilter.mesh.SetVertices(points);
+        meshFilter.mesh.SetTriangles(triangles, 0);
+        meshCollider.sharedMesh = meshFilter.mesh;
+      }
+      else
+      {
+        if (!ObjectValid(meshFilter.sharedMesh))
+        {
+          meshFilter.sharedMesh = new Mesh();
+        }
 
-				meshFilter.sharedMesh.Clear();
-				meshFilter.sharedMesh.SetVertices(points);
-				meshFilter.sharedMesh.SetTriangles(triangles, 0);
-				meshCollider.sharedMesh = meshFilter.sharedMesh;
-			}
-		}
+        meshFilter.sharedMesh.Clear();
+        meshFilter.sharedMesh.SetVertices(points);
+        meshFilter.sharedMesh.SetTriangles(triangles, 0);
+        meshCollider.sharedMesh = meshFilter.sharedMesh;
+      }
+    }
 
-		public override void OnBeginDrag(PointerEventData eventData)
-		{
-			material.color = axis switch
-			{
-				AxisType.X => PlaybookColors.AxisX,
-				AxisType.Y => PlaybookColors.AxisY,
-				AxisType.Z => PlaybookColors.AxisZ,
-				_ => material.color
-			};
+    public override void OnBeginDrag(PointerEventData eventData)
+    {
+      material.color = axis switch
+      {
+        AxisType.X => PlaybookColors.AxisX,
+        AxisType.Y => PlaybookColors.AxisY,
+        AxisType.Z => PlaybookColors.AxisZ,
+        _ => material.color
+      };
 
-			prevAngle = transform.localRotation.eulerAngles;
+      prevAngle = transform.localRotation.eulerAngles;
 
-			if (Obj != null)
-			{
-				objAngle = Obj.transform.localRotation.eulerAngles;
-			}
-		}
+      if (obj != null)
+      {
+        objAngle = obj.transform.localRotation.eulerAngles;
+      }
+    }
 
-		public override void OnDrag(PointerEventData eventData)
-		{
-			var delta = (eventData.delta.x + eventData.delta.y) * precision;
+    public override void OnDrag(PointerEventData eventData)
+    {
+      var delta = (eventData.delta.x + eventData.delta.y) * precision;
 
-			switch (axis)
-			{
-				case AxisType.X:
-					delta *= -1;
-					prevAngle += new Vector3(0, delta, 0);
-					objAngle = new Vector3(objAngle.x, objAngle.y + delta, objAngle.z);
-					break;
-				case AxisType.Y:
-					prevAngle += new Vector3(0, 0, delta);
-					objAngle = new Vector3(objAngle.x, objAngle.y, objAngle.z + delta);
-					break;
-				case AxisType.Z:
-					delta *= -1;
-					prevAngle += new Vector3(0, 0, delta);
-					objAngle = new Vector3(objAngle.x + delta, objAngle.y, objAngle.z);
-					break;
-			}
+      switch (axis)
+      {
+        case AxisType.X:
+          delta *= -1;
+          prevAngle += new Vector3(0, delta, 0);
+          objAngle = new Vector3(objAngle.x, objAngle.y + delta, objAngle.z);
+          break;
+        case AxisType.Y:
+          prevAngle += new Vector3(0, 0, delta);
+          objAngle = new Vector3(objAngle.x, objAngle.y, objAngle.z + delta);
+          break;
+        case AxisType.Z:
+          delta *= -1;
+          prevAngle += new Vector3(0, 0, delta);
+          objAngle = new Vector3(objAngle.x + delta, objAngle.y, objAngle.z);
+          break;
+      }
 
-			transform.localRotation = Quaternion.Euler(prevAngle.x, prevAngle.y, prevAngle.z);
+      transform.localRotation = Quaternion.Euler(prevAngle.x, prevAngle.y, prevAngle.z);
 
-			if (Obj != null)
-			{
-				Obj.transform.localRotation = Quaternion.Euler(objAngle);
-			}
-		}
+      if (obj != null)
+      {
+        obj.transform.localRotation = Quaternion.Euler(objAngle);
+      }
+    }
 
 
-		public override void OnEndDrag(PointerEventData eventData)
-		{
-			material.color = PlaybookColors.SetInactive(axis switch
-			{
-				AxisType.X => PlaybookColors.AxisX,
-				AxisType.Y => PlaybookColors.AxisY,
-				AxisType.Z => PlaybookColors.AxisZ,
-				_ => material.color
-			});
-		}
-		protected override void UpdateToNewObject()
-		{
-			var size = Obj.objectBounds.size;
+    public override void OnEndDrag(PointerEventData eventData)
+    {
+      material.color = PlaybookColors.SetInactive(axis switch
+      {
+        AxisType.X => PlaybookColors.AxisX,
+        AxisType.Y => PlaybookColors.AxisY,
+        AxisType.Z => PlaybookColors.AxisZ,
+        _ => material.color
+      });
+    }
+    protected override void ApplyResult(Vector3 result)
+    {
+    }
+    // protected override void UpdateToNewObject()
+    // {
+    // 	var size = Obj.objectBounds.size;
+    //
+    // 	innerRadius = Mathf.Max(
+    // 		size.x * (Obj.transform.localScale.x * 0.8f),
+    // 		size.y * (Obj.transform.localScale.y * 0.8f),
+    // 		size.z * (Obj.transform.localScale.z * 0.8f)
+    // 	);
+    //
+    // 	Create();
+    // }
 
-			innerRadius = Mathf.Max(
-				size.x * (Obj.transform.localScale.x * 0.8f),
-				size.y * (Obj.transform.localScale.y * 0.8f),
-				size.z * (Obj.transform.localScale.z * 0.8f)
-			);
+    static IEnumerable<Vector3> PointRing(Vector3 center, int sides, float radius)
+    {
+      const float T = 2 * Mathf.PI;
+      var points = new List<Vector3>();
+      var circSteps = 1f / sides;
+      var radianSteps = circSteps * T;
 
-			Create();
-		}
+      for (var i = 0; i < sides; i++)
+      {
+        var radian = radianSteps * i;
+        points.Add(
+          center
+          + new Vector3(Mathf.Cos(radian) * radius,
+            Mathf.Sin(radian) * radius,
+            0)
+        );
+      }
 
-		static IEnumerable<Vector3> PointRing(Vector3 center, int sides, float radius)
-		{
-			const float T = 2 * Mathf.PI;
-			var points = new List<Vector3>();
-			var circSteps = 1f / sides;
-			var radianSteps = circSteps * T;
+      return points;
+    }
 
-			for (var i = 0; i < sides; i++)
-			{
-				var radian = radianSteps * i;
-				points.Add(
-					center
-					+ new Vector3(Mathf.Cos(radian) * radius,
-					              Mathf.Sin(radian) * radius,
-					              0)
-				);
-			}
-
-			return points;
-		}
-
-		public void OnPointerClick(PointerEventData eventData)
-		{
-			Debug.Log("Clicked");
-			OnAxisClicked?.Invoke(axis, eventData.pointerCurrentRaycast.worldPosition);
-		}
-	}
+    public void OnPointerClick(PointerEventData eventData)
+    {
+      Debug.Log("Clicked");
+      OnAxisClicked?.Invoke(axis, eventData.pointerCurrentRaycast.worldPosition);
+    }
+  }
 }

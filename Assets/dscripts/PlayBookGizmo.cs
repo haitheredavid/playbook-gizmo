@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +22,8 @@ namespace HaiThere.Playbook
     GizmoComponentScaler scaler;
     GizmoComponentMover mover;
     PlaybookObject Obj;
+
+    public Vector3 Anchor { get; set; }
 
     public List<GizmoComponent> gizmos { get; private set; }
 
@@ -53,6 +56,10 @@ namespace HaiThere.Playbook
         return;
 
       Obj = playbookObject;
+      var center = playbookObject.objectBounds.center;
+      var size = playbookObject.objectBounds.size;
+      Anchor = new Vector3(center.x - size.x, center.y, center.z - size.z);
+
       SetPosition();
 
       foreach (var g in gizmos)
@@ -68,6 +75,7 @@ namespace HaiThere.Playbook
 
       mover = new GameObject("Mover").AddComponent<GizmoComponentMover>();
       scaler = new GameObject("Scaler").AddComponent<GizmoComponentScaler>();
+      scaler.positionOffset = scaler.scaleOffset * 2f + 0.15f;
       gizmos.Add(mover);
       gizmos.Add(scaler);
 
@@ -86,12 +94,11 @@ namespace HaiThere.Playbook
     void SetPosition()
     {
       transform.position = Obj != null ? new Vector3(
-        Obj.transform.position.x - Obj.transform.localScale.x * 0.5f + anchorOffset.x,
-        Obj.transform.position.y - Obj.transform.localScale.y * 0.5f + anchorOffset.y,
-        Obj.transform.position.z - Obj.transform.localScale.z * 0.5f + anchorOffset.z
+        Obj.transform.position.x + Anchor.x + anchorOffset.x,
+        Obj.transform.position.y + Anchor.y + anchorOffset.y,
+        Obj.transform.position.z + Anchor.z + anchorOffset.z
       ) : Vector3.zero;
     }
-
 
   }
 }

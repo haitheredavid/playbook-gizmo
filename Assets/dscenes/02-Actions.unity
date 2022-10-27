@@ -607,7 +607,7 @@ MonoBehaviour:
   movementSpeed: 100
   rotate: []
   isActive: 0
-  anchorOffset: {x: 0.2, y: 0, z: 0.2}
+  anchorOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &1870969905
 Transform:
   m_ObjectHideFlags: 0

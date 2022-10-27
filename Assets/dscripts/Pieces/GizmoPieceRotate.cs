@@ -19,6 +19,9 @@ namespace HaiThere.Playbook
 
 		Vector3 prevAngle;
 		Vector3 objAngle;
+		
+		public override event UnityAction<GizmoPiece> OnSet;
+		public override event UnityAction OnComplete;
 
 		public event UnityAction<AxisType, Vector3> OnAxisClicked;
 
@@ -144,6 +147,7 @@ namespace HaiThere.Playbook
 			}
 		}
 
+
 		public override void OnEndDrag(PointerEventData eventData)
 		{
 			material.color = PlaybookColors.SetInactive(axis switch
@@ -154,7 +158,6 @@ namespace HaiThere.Playbook
 				_ => material.color
 			});
 		}
-
 		protected override void UpdateToNewObject()
 		{
 			var size = Obj.objectBounds.size;

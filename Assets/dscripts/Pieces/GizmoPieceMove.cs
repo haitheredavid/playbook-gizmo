@@ -5,29 +5,19 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class GizmoPieceMove : GizmoPiece, IPointerClickHandler
+public class GizmoPieceMove : GizmoPiece
 {
-	public AxisType axis { get; set; }
 
-	public float movementSpeed { get; set; } = 100f;
 
-	public bool showLine { get; set; } = true;
-
-	public bool isLocal { get; set; } = true;
-
-	public GizmoComponent parent { get; set; }
-
-	public Transform obj { get; set; }
 	LineRenderer lr;
 	Vector3 positionDelta;
 	Vector3 objDelta;
 	Vector3 newPos;
 
-	public event UnityAction OnStart;
+	public override event UnityAction<GizmoPiece> OnSet;
+	public override event UnityAction OnComplete;
+	public bool showLine { get; set; } = true;
 
-	public event UnityAction OnEnd;
-
-	public event UnityAction<GizmoPieceMove> OnClick;
 
 	Vector3 GetPosition(Vector3 pos, Vector3 offset)
 	{
@@ -61,8 +51,7 @@ public class GizmoPieceMove : GizmoPiece, IPointerClickHandler
 		if (obj != null)
 			objDelta = obj.position - (isLocal ? transform.localPosition : transform.position);
 
-		OnStart?.Invoke();
-		OnClick?.Invoke(this);
+		OnSet?.Invoke(this);
 
 		if (showLine)
 			lr.SetPosition(0, transform.position);
@@ -110,19 +99,11 @@ public class GizmoPieceMove : GizmoPiece, IPointerClickHandler
 		}
 
 		Debug.Log($"{name}-End");
-		OnEnd?.Invoke();
+		OnComplete?.Invoke();
 	}
 
-	public bool Equals(GizmoPieceMove value)
-	{
-		return value != null && value.axis == axis;
-	}
+	
 
-	public void OnPointerClick(PointerEventData data)
-	{
-		Debug.Log($"{name}-Click");
-		OnClick?.Invoke(this);
-	}
 
 	
 }

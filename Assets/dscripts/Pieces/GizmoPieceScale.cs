@@ -9,7 +9,10 @@ namespace HaiThere.Playbook
 
 		Vector3 scale = Vector3.one;
 		Vector3 prevPos = Vector3.zero;
-
+		
+		public override event UnityAction<GizmoPiece> OnSet;
+		public override event UnityAction OnComplete;
+		
 		public event UnityAction OnScaleChange;
 
 		public Vector3 offset => new Vector3(0, 0, 1.5f);

@@ -147,7 +147,7 @@ namespace HaiThere.Playbook
       prefab.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Gizmo");
       prefab.movementSpeed = movementSpeed;
       prefab.isLocal = isLocal;
-      prefab.transform.localScale = new Vector3(.2f, .2f, .5f);
+      prefab.transform.localScale = new Vector3(.2f, .2f, scaleOffset);
       return prefab;
     }
     protected abstract GizmoPiece BuildPrefab();

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class GizmoPieceMove2 : PlaybookGizmoPiece, IPointerClickHandler
+public class GizmoPieceMove : PlaybookGizmoPiece, IPointerClickHandler
 {
 	public AxisType axis { get; set; }
 
@@ -15,10 +15,10 @@ public class GizmoPieceMove2 : PlaybookGizmoPiece, IPointerClickHandler
 
 	public bool isLocal { get; set; } = true;
 
-	public IGizmoParent parent { get; set; }
+	public PlaybookGizmoElement parent { get; set; }
 
+	public Transform obj { get; set; }
 	LineRenderer lr;
-	Transform obj;
 	Vector3 positionDelta;
 	Vector3 objDelta;
 	Vector3 newPos;
@@ -27,7 +27,7 @@ public class GizmoPieceMove2 : PlaybookGizmoPiece, IPointerClickHandler
 
 	public event UnityAction OnEnd;
 
-	public event UnityAction<GizmoPieceMove2> OnClick;
+	public event UnityAction<GizmoPieceMove> OnClick;
 
 	Vector3 GetPosition(Vector3 pos, Vector3 offset)
 	{
@@ -40,10 +40,6 @@ public class GizmoPieceMove2 : PlaybookGizmoPiece, IPointerClickHandler
 		};
 	}
 	
-	public void Attach(Transform o)
-	{
-		obj = o;
-	}
 
 	protected override void SetupPiece()
 	{
@@ -117,7 +113,7 @@ public class GizmoPieceMove2 : PlaybookGizmoPiece, IPointerClickHandler
 		OnEnd?.Invoke();
 	}
 
-	public bool Equals(GizmoPieceMove2 value)
+	public bool Equals(GizmoPieceMove value)
 	{
 		return value != null && value.axis == axis;
 	}

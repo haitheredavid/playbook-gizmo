@@ -4,21 +4,15 @@ using HaiThere.Playbook;
 using UnityEngine;
 using UnityEngine.Events;
 
-public interface IGizmoParent
-{
-  public void Attach(GameObject obj);
 
-  Vector3 pointerPos { get; }
-}
-
-public class MovementHandle : PlaybookGizmoElement, IGizmoParent
+public class MovementHandle : PlaybookGizmoElement
 {
   [Header("Gizmo Props")]
   public Camera viewer;
+  public bool isParented;
   [Range(1f, 100f)] public float movementSpeed = 100f;
 
   [Header("Handler Props")]
-  [SerializeField] Mesh mesh;
   [SerializeField, Range(0.0f, 1.0f)] float positionOffset = 0.5f;
   [SerializeField, Range(0.0f, 1.0f)] float scaleOffset = 0.5f;
   [SerializeField] Vector3 anchorOffset = new Vector3(0.2f, 0.0f, 0.2f);
@@ -28,19 +22,15 @@ public class MovementHandle : PlaybookGizmoElement, IGizmoParent
   [SerializeField] bool useLocalPos = true;
   [SerializeField] bool logPos = false;
 
-  public GizmoPieceMove2 activePiece { get; private set; }
-
-  List<GizmoPieceMove2> pieces = new List<GizmoPieceMove2>();
-
-  public GameObject activeObj { get; private set; }
+  public GizmoPieceMove activePiece { get; private set; }
 
   public event UnityAction OnActionComplete;
 
   public override void Create()
   {
-    var prefab = new GameObject().AddComponent<GizmoPieceMove2>();
+    var prefab = new GameObject().AddComponent<GizmoPieceMove>();
 
-    prefab.GetComponent<MeshFilter>().mesh = mesh;
+    prefab.GetComponent<MeshFilter>().mesh = PlaybookMeshBuilder.CreatCube(1f);
     prefab.GetComponent<MeshCollider>().sharedMesh = prefab.GetComponent<MeshFilter>().mesh;
     prefab.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Gizmo");
 
@@ -70,19 +60,8 @@ public class MovementHandle : PlaybookGizmoElement, IGizmoParent
     Destroy(prefab.gameObject);
   }
 
-  public void Attach(GameObject obj)
-  {
-    activeObj = obj;
 
-    foreach (var piece in pieces)
-    {
-      piece.Attach(obj.transform);
-    }
-
-    MoveToObjectAnchor();
-  }
-
-  void SetActivePiece(GizmoPieceMove2 piece)
+  void SetActivePiece(GizmoPieceMove piece)
   {
     if (piece == null)
       return;
@@ -109,7 +88,9 @@ public class MovementHandle : PlaybookGizmoElement, IGizmoParent
   {
     activePiece.transform.localPosition = GetPiecePosition(activePiece.axis);
     OnActionComplete?.Invoke();
-    MoveToObjectAnchor();
+
+    if (!isParented)
+      MoveToObjectAnchor();
   }
 
   public Vector3 pointerPos

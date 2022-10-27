@@ -13,15 +13,14 @@ namespace HaiThere.Playbook
     [SerializeField] PlaybookUser user;
     [SerializeField][Range(1f, 100f)] float movementSpeed = 100f;
 
-    [SerializeField] GizmoPieceScale scale;
     [SerializeField] List<GizmoPieceRotate> rotate;
     [SerializeField] bool isActive;
 
     [SerializeField] Vector3 anchorOffset = new Vector3(0.2f, 0.0f, 0.2f);
 
-    [SerializeField] GizmoComponentMover gizmoComponentMover;
-    
-    public PlaybookObject Obj { get; private set; }
+    GizmoComponentScaler scaler;
+    GizmoComponentMover mover;
+    PlaybookObject Obj;
 
     public List<GizmoComponent> gizmos { get; private set; }
 
@@ -31,7 +30,6 @@ namespace HaiThere.Playbook
       {
         var p = new List<GizmoPiece>();
         p.AddRange(rotate);
-        p.Add(scale);
         return p;
       }
     }
@@ -39,7 +37,6 @@ namespace HaiThere.Playbook
     public bool IsActive
     {
       get => isActive;
-
       set
       {
         isActive = value;
@@ -57,27 +54,33 @@ namespace HaiThere.Playbook
 
       Obj = playbookObject;
       SetPosition();
-      gizmoComponentMover.activeObj = Obj.gameObject;
 
-      // foreach (var p in AllPieces)
-      // {
-      //   p.Obj = Obj;
-      // }
-      //
-      // IsActive = true;
+      foreach (var g in gizmos)
+      {
+        g.activeObj = Obj.gameObject;
+      }
     }
 
     public void Awake()
     {
 
       gizmos = new List<GizmoComponent>();
-      gizmoComponentMover = new GameObject("Mover").AddComponent<GizmoComponentMover>();
-      gizmoComponentMover.transform.SetParent(transform);
-      gizmoComponentMover.movementSpeed = movementSpeed;
-      gizmoComponentMover.viewer = user.Viewer;
-      gizmoComponentMover.isParented = true;
-      gizmoComponentMover.OnActionComplete += SetPosition;
-      gizmoComponentMover.Create();
+
+      mover = new GameObject("Mover").AddComponent<GizmoComponentMover>();
+      mover.transform.SetParent(transform);
+      mover.movementSpeed = movementSpeed;
+      mover.viewer = user.Viewer;
+      mover.isParented = true;
+      mover.OnActionComplete += SetPosition;
+      gizmos.Add(mover);
+
+      scaler = new GameObject("Scaler").AddComponent<GizmoComponentScaler>();
+      gizmos.Add(scaler);
+
+      foreach (var gizmo in gizmos)
+      {
+        gizmo.Create();
+      }
 
     }
 

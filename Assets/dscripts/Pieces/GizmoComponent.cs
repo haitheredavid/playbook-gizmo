@@ -17,9 +17,9 @@ namespace HaiThere.Playbook
 
     [Header("Transform Props")]
     [Range(1f, 100f)] public float movementSpeed = 100f;
-    [SerializeField, Range(0.0f, 1.0f)] protected float positionOffset = 0.5f;
-    [SerializeField, Range(0.0f, 1.0f)] protected float scaleOffset = 0.5f;
-    [SerializeField] protected Vector3 anchorOffset = new Vector3(0.2f, 0.0f, 0.2f);
+    public float positionOffset = 0.3f;
+    public float scaleOffset = 0.3f;
+    public Vector3 anchorOffset = new Vector3(0.0f, 0.0f, 0.0f);
 
     protected List<GizmoPiece> pieces = new List<GizmoPiece>();
 
@@ -60,7 +60,7 @@ namespace HaiThere.Playbook
     public override void Create()
     {
       var prefab = BuildPrefab();
-      
+
       foreach (AxisType axis in Enum.GetValues(typeof(AxisType)))
       {
         var instance = Instantiate(prefab, transform);

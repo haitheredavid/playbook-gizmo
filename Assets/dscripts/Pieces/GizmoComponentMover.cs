@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 
-public class MovementHandle : PlaybookGizmoElement
+public class GizmoComponentMover : GizmoComponent
 {
   [Header("Gizmo Props")]
   public Camera viewer;

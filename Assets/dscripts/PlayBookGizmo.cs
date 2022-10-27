@@ -19,17 +19,17 @@ namespace HaiThere.Playbook
 
     [SerializeField] Vector3 anchorOffset = new Vector3(0.2f, 0.0f, 0.2f);
 
-    [SerializeField] MovementHandle movementHandle;
+    [SerializeField] GizmoComponentMover gizmoComponentMover;
     
     public PlaybookObject Obj { get; private set; }
 
-    public List<PlaybookGizmoElement> gizmos { get; private set; }
+    public List<GizmoComponent> gizmos { get; private set; }
 
-    public List<PlaybookGizmoPiece> AllPieces
+    public List<GizmoPiece> AllPieces
     {
       get
       {
-        var p = new List<PlaybookGizmoPiece>();
+        var p = new List<GizmoPiece>();
         p.AddRange(rotate);
         p.Add(scale);
         return p;
@@ -57,7 +57,7 @@ namespace HaiThere.Playbook
 
       Obj = playbookObject;
       SetPosition();
-      movementHandle.activeObj = Obj.gameObject;
+      gizmoComponentMover.activeObj = Obj.gameObject;
 
       // foreach (var p in AllPieces)
       // {
@@ -70,14 +70,14 @@ namespace HaiThere.Playbook
     public void Awake()
     {
 
-      gizmos = new List<PlaybookGizmoElement>();
-      movementHandle = new GameObject("Mover").AddComponent<MovementHandle>();
-      movementHandle.transform.SetParent(transform);
-      movementHandle.movementSpeed = movementSpeed;
-      movementHandle.viewer = user.Viewer;
-      movementHandle.isParented = true;
-      movementHandle.OnActionComplete += SetPosition;
-      movementHandle.Create();
+      gizmos = new List<GizmoComponent>();
+      gizmoComponentMover = new GameObject("Mover").AddComponent<GizmoComponentMover>();
+      gizmoComponentMover.transform.SetParent(transform);
+      gizmoComponentMover.movementSpeed = movementSpeed;
+      gizmoComponentMover.viewer = user.Viewer;
+      gizmoComponentMover.isParented = true;
+      gizmoComponentMover.OnActionComplete += SetPosition;
+      gizmoComponentMover.Create();
 
     }
 

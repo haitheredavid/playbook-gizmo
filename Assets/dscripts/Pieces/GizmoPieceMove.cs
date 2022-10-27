@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class GizmoPieceMove : PlaybookGizmoPiece, IPointerClickHandler
+public class GizmoPieceMove : GizmoPiece, IPointerClickHandler
 {
 	public AxisType axis { get; set; }
 
@@ -15,7 +15,7 @@ public class GizmoPieceMove : PlaybookGizmoPiece, IPointerClickHandler
 
 	public bool isLocal { get; set; } = true;
 
-	public PlaybookGizmoElement parent { get; set; }
+	public GizmoComponent parent { get; set; }
 
 	public Transform obj { get; set; }
 	LineRenderer lr;

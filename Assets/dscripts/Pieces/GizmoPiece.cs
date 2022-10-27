@@ -12,7 +12,7 @@ namespace HaiThere.Playbook
   }
 
   [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
-  public abstract class PlaybookGizmoPiece : PlaybookGizmoElement, IDragHandler, IBeginDragHandler, IEndDragHandler
+  public abstract class GizmoPiece : GizmoComponent, IDragHandler, IBeginDragHandler, IEndDragHandler
   {
 
     [SerializeField, HideInInspector] protected MeshFilter meshFilter;
@@ -22,8 +22,7 @@ namespace HaiThere.Playbook
     [SerializeField, Range(0.01f, 10f)] protected float precision = 0.5f;
 
     protected Material material;
-
-
+    
     PlaybookObject _obj;
 
     public PlaybookObject Obj

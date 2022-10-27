@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 namespace HaiThere.Playbook
 {
-	public class GizmoPieceScale : PlaybookGizmoPiece
+	public class GizmoPieceScale : GizmoPiece
 	{
 
 		Vector3 scale = Vector3.one;

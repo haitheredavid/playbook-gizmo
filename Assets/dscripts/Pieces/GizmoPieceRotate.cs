@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 namespace HaiThere.Playbook
 {
 
-	public class GizmoPieceRotate : PlaybookGizmoPiece, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerClickHandler
+	public class GizmoPieceRotate : GizmoPiece, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerClickHandler
 	{
 
 		[SerializeField] AxisType axis;

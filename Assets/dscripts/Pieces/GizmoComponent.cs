@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace HaiThere.Playbook
 {
-  public abstract class PlaybookGizmoElement : MonoBehaviour
+  public abstract class GizmoComponent : MonoBehaviour
   {
     [SerializeField] protected GameObject obj;
 
@@ -27,7 +27,7 @@ namespace HaiThere.Playbook
       }
     }
 
-    protected List<PlaybookGizmoPiece> pieces = new List<PlaybookGizmoPiece>();
+    protected List<GizmoPiece> pieces = new List<GizmoPiece>();
 
 
     public abstract void Create();

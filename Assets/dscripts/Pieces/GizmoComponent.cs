@@ -20,7 +20,6 @@ namespace HaiThere.Playbook
 
     protected List<GizmoPiece> pieces = new List<GizmoPiece>();
 
-
     public GizmoPiece activePiece { get; protected set; }
 
     public GameObject activeObj
@@ -45,7 +44,7 @@ namespace HaiThere.Playbook
     {
       get => viewer == null ? Vector3.zero : viewer.ScreenToWorldPoint(Input.mousePosition);
     }
-    
+
     public event UnityAction OnActionComplete;
 
     public override void SetActive(bool status)
@@ -72,7 +71,7 @@ namespace HaiThere.Playbook
       activePiece = piece;
       activePiece.OnComplete += CompleteActionHook;
     }
-    
+
     void CompleteActionHook()
     {
       activePiece.transform.localPosition = GetPiecePosition(activePiece.axis);
@@ -113,12 +112,14 @@ namespace HaiThere.Playbook
         _ => Vector3.zero
       };
     }
-    
+
+    protected virtual Mesh CreateMesh() => PlaybookMeshBuilder.CreatCube(1f);
+
     protected virtual TPiece BuildPrefab<TPiece>() where TPiece : GizmoPiece
     {
       var prefab = new GameObject().AddComponent<TPiece>();
 
-      prefab.GetComponent<MeshFilter>().mesh = PlaybookMeshBuilder.CreatCube(1f);
+      prefab.GetComponent<MeshFilter>().mesh = CreateMesh();
       prefab.GetComponent<MeshCollider>().sharedMesh = prefab.GetComponent<MeshFilter>().mesh;
       prefab.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Gizmo");
       prefab.movementSpeed = movementSpeed;

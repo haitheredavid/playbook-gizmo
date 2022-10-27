@@ -49,7 +49,6 @@ namespace HaiThere.Playbook
       }
 
       objects = new List<PlaybookObject>();
-      gizmo.IsActive = false;
     }
 
     public void ObjectSelected(PlaybookObject obj)
@@ -59,7 +58,11 @@ namespace HaiThere.Playbook
 
     void Start()
     {
+      user.SetTarget(obj.transform);
+      gizmo.user = user;
+      gizmo.OnObjectModified += user.LookAtTarget;
       gizmo.SetActiveObj(obj);
+
     }
 
   }

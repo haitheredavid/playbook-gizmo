@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace HaiThere.Playbook
 {
@@ -11,7 +12,6 @@ namespace HaiThere.Playbook
   public class PlayBookGizmo : MonoBehaviour
   {
 
-    [SerializeField] PlaybookUser user;
     [SerializeField][Range(1f, 100f)] float movementSpeed = 100f;
 
     [SerializeField] List<GizmoPieceRotate> rotate;
@@ -23,32 +23,12 @@ namespace HaiThere.Playbook
     GizmoComponentMover mover;
     PlaybookObject Obj;
 
+    public PlaybookUser user;
     public Vector3 Anchor { get; set; }
 
     public List<GizmoComponent> gizmos { get; private set; }
 
-    public List<GizmoPiece> AllPieces
-    {
-      get
-      {
-        var p = new List<GizmoPiece>();
-        p.AddRange(rotate);
-        return p;
-      }
-    }
-
-    public bool IsActive
-    {
-      get => isActive;
-      set
-      {
-        isActive = value;
-        foreach (var piece in AllPieces)
-        {
-          piece.SetActive(value);
-        }
-      }
-    }
+    public event UnityAction OnObjectModified;
 
     public void SetActiveObj(PlaybookObject playbookObject)
     {
@@ -70,7 +50,6 @@ namespace HaiThere.Playbook
 
     public void Awake()
     {
-
       gizmos = new List<GizmoComponent>();
 
       mover = new GameObject("Mover").AddComponent<GizmoComponentMover>();
@@ -85,11 +64,17 @@ namespace HaiThere.Playbook
         gizmo.movementSpeed = movementSpeed;
         gizmo.viewer = user.Viewer;
         gizmo.isParented = true;
-        gizmo.OnActionComplete += SetPosition;
+        gizmo.OnActionComplete += ComponentComplete;
         gizmo.Create();
       }
-
     }
+    
+    void ComponentComplete()
+    {
+      SetPosition();
+      OnObjectModified?.Invoke();
+    }
+
 
     void SetPosition()
     {

@@ -129,9 +129,9 @@ namespace HaiThere.Playbook
     {
       return axis switch
       {
-        AxisType.X => new Vector3(0, -90, -90),
-        AxisType.Y => new Vector3(90, 0, 0),
-        AxisType.Z => new Vector3(0, 0, -90),
+        AxisType.X => new Vector3(0, 90, 90),
+        AxisType.Y => new Vector3(-90, 0, 0),
+        AxisType.Z => new Vector3(0, 0, 90),
         _ => Vector3.zero
       };
     }

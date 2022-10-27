@@ -44,6 +44,8 @@ namespace HaiThere.Playbook
         meshRenderer.enabled = status;
       if (meshCollider)
         meshCollider.enabled = status;
+      if (line)
+        line.enabled = status;
     }
 
     public bool Equals(GizmoPiece value)
@@ -104,13 +106,13 @@ namespace HaiThere.Playbook
         result = Vector3.MoveTowards(transform.position, newPos, movementSpeed * Time.deltaTime);
         transform.position = result;
       }
-      
-      if (showLine)
-        line.SetPosition(1, transform.position);
 
-      if(obj!= null)
+      if (showLine)
+        SetLinePosFromDrag();
+
+      if (obj != null)
         ApplyResult(result + objDelta);
-      
+
       Debug.Log($"{name}-Drag");
     }
 
@@ -139,9 +141,13 @@ namespace HaiThere.Playbook
       Debug.Log($"{name}-End");
     }
 
-    
+    protected virtual void SetLinePosFromDrag()
+    {
+      line.SetPosition(1, transform.position);
+    }
+
     protected abstract void ApplyResult(Vector3 result);
-    
+
     protected static bool ObjectValid<TObj>(TObj mesh) where TObj : UnityEngine.Object
     {
       return mesh != null;

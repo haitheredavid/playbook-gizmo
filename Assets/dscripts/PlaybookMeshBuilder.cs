@@ -40,5 +40,33 @@ namespace HaiThere.Playbook
       mesh.RecalculateNormals();
       return mesh;
     }
+
+    public static Mesh CreateCone(float size, float height)
+    {
+      var overallSize = size * 1;
+      var anchorOffset = Vector3.one / overallSize * 0.5f;
+      var mesh = new Mesh
+      {
+        vertices = new[]
+        {
+          new Vector3(0, 0, 0) - anchorOffset,
+          new Vector3(0, overallSize, 0) - anchorOffset,
+          new Vector3(overallSize, overallSize, 0) - anchorOffset,
+          new Vector3(overallSize, 0, 0) - anchorOffset,
+          new Vector3(overallSize * 0.5f, overallSize * 0.5f, height) - anchorOffset
+        },
+        triangles = new[]
+        {
+          0, 1, 2, // face bottom
+          0, 2, 3,
+          0, 4, 1, // face front
+          1, 4, 2, // face right
+          2, 4, 3, // face back
+          3, 4, 0 // face left
+        }
+      };
+      mesh.RecalculateNormals();
+      return mesh;
+    }
   }
 }

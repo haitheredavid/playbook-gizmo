@@ -8,10 +8,7 @@ namespace HaiThere.Playbook
     public Camera viewer;
     public float distanceOffset = 10f;
     public float speed = 5;
-
-    Transform target;
-
-    Vector3 prevPos;
+    Vector3 target = Vector3.zero;
     Vector2 rotation = Vector2.zero;
 
     public Camera Viewer
@@ -22,13 +19,13 @@ namespace HaiThere.Playbook
 
     public void SetTarget(Transform t)
     {
-      target = t;
+      target = t.position;
       LookAtTarget();
     }
 
     public void LookAtTarget()
     {
-      transform.position = target.position;
+      transform.position = target;
       viewer.transform.localRotation = Quaternion.Euler(rotation.x, rotation.y, 0);
       transform.Translate(new Vector3(0, 0, -distanceOffset));
     }

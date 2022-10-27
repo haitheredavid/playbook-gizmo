@@ -9,14 +9,10 @@ namespace HaiThere.Playbook
   {
     [SerializeField] PlayBookGizmo gizmo;
     [SerializeField] PlaybookUser user;
-    [SerializeField] PlaybookObject obj;
-
-
     [SerializeField] GameObject playBookObjectPrefab;
-
     [SerializeField] List<PlaybookObject> objects = new List<PlaybookObject>();
-
-    const float floatAmount = 0.1f;
+    
+    PlaybookObject obj;
 
     public void CreateNewObject()
     {
@@ -28,11 +24,14 @@ namespace HaiThere.Playbook
         return;
       }
 
-      var obj = Instantiate(playBookObjectPrefab).GetComponent<PlaybookObject>();
-      // obj.transform.localPosition = new Vector3(UnityEngine.Random.Range(-2, 2), UnityEngine.Random.Range(-2, 2), UnityEngine.Random.Range(-2, 2));
-      obj.OnClicked += ObjectSelected;
+      var item = Instantiate(playBookObjectPrefab).GetComponent<PlaybookObject>();
 
-      objects.Add(obj);
+      objects.Add(item);
+      gizmo.SetActive(true);
+
+      obj = item;
+      user.SetTarget(item.transform);
+      gizmo.SetActiveObj(item);
     }
 
     public void ClearAllObjects()
@@ -49,20 +48,20 @@ namespace HaiThere.Playbook
       }
 
       objects = new List<PlaybookObject>();
+      gizmo.SetActive(false);
     }
 
-    public void ObjectSelected(PlaybookObject obj)
+    public void ObjectSelected(PlaybookObject newObj)
     {
-      gizmo.SetActiveObj(obj);
+
     }
 
     void Start()
     {
-      user.SetTarget(obj.transform);
       gizmo.user = user;
       gizmo.OnObjectModified += user.LookAtTarget;
-      gizmo.SetActiveObj(obj);
-
+      gizmo.Create();
+      gizmo.SetActive(false);
     }
 
   }

@@ -48,7 +48,7 @@ namespace HaiThere.Playbook
       }
     }
 
-    public void Awake()
+    void Awake()
     {
       gizmos = new List<GizmoComponent>();
 
@@ -58,6 +58,11 @@ namespace HaiThere.Playbook
       gizmos.Add(mover);
       gizmos.Add(scaler);
 
+
+    }
+
+    public void Create()
+    {
       foreach (var gizmo in gizmos)
       {
         gizmo.transform.SetParent(transform);
@@ -67,8 +72,9 @@ namespace HaiThere.Playbook
         gizmo.OnActionComplete += ComponentComplete;
         gizmo.Create();
       }
+
     }
-    
+
     void ComponentComplete()
     {
       SetPosition();
@@ -85,5 +91,12 @@ namespace HaiThere.Playbook
       ) : Vector3.zero;
     }
 
+    public void SetActive(bool b)
+    {
+      foreach (var g in gizmos)
+      {
+        g.SetActive(b);
+      }
+    }
   }
 }

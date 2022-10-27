@@ -5,59 +5,62 @@ using UnityEngine;
 
 namespace HaiThere.Playbook
 {
-	public class PlaybookHub : MonoBehaviour
-	{
-		[SerializeField] PlayBookGizmo gizmo;
+  public class PlaybookHub : MonoBehaviour
+  {
+    [SerializeField] PlayBookGizmo gizmo;
+    [SerializeField] PlaybookUser user;
+    [SerializeField] PlaybookObject obj;
 
-		[SerializeField] GameObject playBookObjectPrefab;
 
-		[SerializeField] List<PlaybookObject> objects = new List<PlaybookObject>();
+    [SerializeField] GameObject playBookObjectPrefab;
 
-		const float floatAmount = 0.1f;
+    [SerializeField] List<PlaybookObject> objects = new List<PlaybookObject>();
 
-		public void CreateNewObject()
-		{
-			Debug.Log("Creating New Object");
+    const float floatAmount = 0.1f;
 
-			if (playBookObjectPrefab == null)
-			{
-				Debug.Log("Set a prefab first!");
-				return;
-			}
+    public void CreateNewObject()
+    {
+      Debug.Log("Creating New Object");
 
-			var obj = Instantiate(playBookObjectPrefab).GetComponent<PlaybookObject>();
-			// obj.transform.localPosition = new Vector3(UnityEngine.Random.Range(-2, 2), UnityEngine.Random.Range(-2, 2), UnityEngine.Random.Range(-2, 2));
-			obj.OnClicked += ObjectSelected;
+      if (playBookObjectPrefab == null)
+      {
+        Debug.Log("Set a prefab first!");
+        return;
+      }
 
-			objects.Add(obj);
-		}
+      var obj = Instantiate(playBookObjectPrefab).GetComponent<PlaybookObject>();
+      // obj.transform.localPosition = new Vector3(UnityEngine.Random.Range(-2, 2), UnityEngine.Random.Range(-2, 2), UnityEngine.Random.Range(-2, 2));
+      obj.OnClicked += ObjectSelected;
 
-		public void ClearAllObjects()
-		{
-			Debug.Log("Clearing all objects");
+      objects.Add(obj);
+    }
 
-			if (objects.Any())
-			{
-				for (int i = objects.Count; i > 0; i--)
-				{
-					objects[i - 1].OnClicked -= ObjectSelected;
-					Destroy(objects[i - 1].gameObject);
-				}
-			}
+    public void ClearAllObjects()
+    {
+      Debug.Log("Clearing all objects");
 
-			objects = new List<PlaybookObject>();
-			gizmo.IsActive = false;
-		}
+      if (objects.Any())
+      {
+        for (int i = objects.Count; i > 0; i--)
+        {
+          objects[i - 1].OnClicked -= ObjectSelected;
+          Destroy(objects[i - 1].gameObject);
+        }
+      }
 
-		public void ObjectSelected(PlaybookObject obj)
-		{
-			gizmo.SetActiveObj(obj);
-		}
+      objects = new List<PlaybookObject>();
+      gizmo.IsActive = false;
+    }
 
-		void Start()
-		{
-			gizmo.IsActive = false;
-		}
+    public void ObjectSelected(PlaybookObject obj)
+    {
+      gizmo.SetActiveObj(obj);
+    }
 
-	}
+    void Start()
+    {
+      gizmo.SetActiveObj(obj);
+    }
+
+  }
 }

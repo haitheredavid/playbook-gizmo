@@ -16,7 +16,6 @@ namespace HaiThere.Playbook
     Vector3 prevAngle;
     Vector3 objAngle;
 
-    public event UnityAction<AxisType, Vector3> OnAxisClicked;
 
     public void Start()
     {
@@ -30,20 +29,20 @@ namespace HaiThere.Playbook
       });
     }
 
-    public void Create(AxisType axisType)
-    {
-      axis = axisType;
-
-      transform.localRotation = axis switch
-      {
-        AxisType.X => Quaternion.Euler(-90, 0, 0),
-        AxisType.Y => Quaternion.Euler(0, 0, 0),
-        AxisType.Z => Quaternion.Euler(0, 90, 0),
-        _ => transform.localRotation
-      };
-
-      Create();
-    }
+    // public void Create(AxisType axisType)
+    // {
+    //   axis = axisType;
+    //
+    //   transform.localRotation = axis switch
+    //   {
+    //     AxisType.X => Quaternion.Euler(-90, 0, 0),
+    //     AxisType.Y => Quaternion.Euler(0, 0, 0),
+    //     AxisType.Z => Quaternion.Euler(0, 90, 0),
+    //     _ => transform.localRotation
+    //   };
+    //
+    //   Create();
+    // }
 
     public override void Create()
     {

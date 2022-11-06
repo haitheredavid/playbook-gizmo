@@ -10,12 +10,10 @@ namespace HaiThere.Playbook
   /// </summary>
   public class Gizmo : MonoBehaviour
   {
+    public PlaybookUser user;
 
     [SerializeField][Range(1f, 100f)] float movementSpeed = 100f;
-
-    [SerializeField] bool isActive;
     [SerializeField] bool enableMovement, enableScaling, enableRotation;
-
     [SerializeField] Vector3 anchorOffset = new Vector3(0.2f, 0.0f, 0.2f);
 
     GizmoComponentScaler scaler;
@@ -23,7 +21,6 @@ namespace HaiThere.Playbook
     GizmoComponentRotater rotater;
     PlaybookObject Obj;
 
-    public PlaybookUser user;
     public Vector3 Anchor { get; set; }
 
     public List<GizmoComponent> gizmos { get; private set; }

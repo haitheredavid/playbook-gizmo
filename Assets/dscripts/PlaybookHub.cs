@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -7,7 +6,7 @@ namespace HaiThere.Playbook
 {
   public class PlaybookHub : MonoBehaviour
   {
-    [SerializeField] PlayBookGizmo gizmo;
+    [SerializeField] Gizmo gizmo;
     [SerializeField] PlaybookUser user;
     [SerializeField] GameObject playBookObjectPrefab;
     [SerializeField] List<PlaybookObject> objects = new List<PlaybookObject>();

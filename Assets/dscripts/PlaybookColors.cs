@@ -1,9 +1,8 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace HaiThere.Playbook
 {
-	static class PlaybookColors
+	internal static class PlaybookColors
 	{
 
 		public static Color32 SetInactive(Color32 c)

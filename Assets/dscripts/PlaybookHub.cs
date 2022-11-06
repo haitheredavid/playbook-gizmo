@@ -11,8 +11,6 @@ namespace HaiThere.Playbook
     [SerializeField] GameObject playBookObjectPrefab;
     [SerializeField] List<PlaybookObject> objects = new List<PlaybookObject>();
 
-    PlaybookObject obj;
-
     public void CreateNewObject()
     {
       Debug.Log("Creating New Object");
@@ -28,7 +26,6 @@ namespace HaiThere.Playbook
       objects.Add(item);
       gizmo.SetActive(true);
 
-      obj = item;
       user.SetTarget(item.transform);
       gizmo.SetActiveObj(item);
     }
@@ -74,6 +71,5 @@ namespace HaiThere.Playbook
       gizmo.isDebugging = value;
 
     }
-
   }
 }

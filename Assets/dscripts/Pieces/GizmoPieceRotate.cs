@@ -7,10 +7,9 @@ namespace HaiThere.Playbook
   public class GizmoPieceRotate : GizmoPiece
   {
 
-    [SerializeField, Range(1, 100)] int sides = 50;
-
-    [SerializeField, Range(0f, 5f)] float offsetSize = 1f;
-    [SerializeField, Range(0.01f, 10f)] float innerRadius = 2f;
+    public int sides { get; set; } = 50;
+    public float offsetSize{ get; set; }  = 1f;
+    public float innerRadius { get; set; } = 2f;
 
     Vector3 prevAngle;
     Vector3 objAngle;
@@ -134,6 +133,6 @@ namespace HaiThere.Playbook
     //
     // 	Create();
     // }
-    
+
   }
 }

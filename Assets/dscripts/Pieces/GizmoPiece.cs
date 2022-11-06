@@ -1,5 +1,4 @@
-﻿using System.Data;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
@@ -13,7 +12,7 @@ namespace HaiThere.Playbook
   }
 
   [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
-  public abstract class GizmoPiece : Gizmo, IDragHandler, IBeginDragHandler, IEndDragHandler
+  public abstract class GizmoPiece : MonoBehaviour, IGizmo, IDragHandler, IBeginDragHandler, IEndDragHandler
   {
 
     [SerializeField, HideInInspector] protected MeshFilter meshFilter;
@@ -38,7 +37,7 @@ namespace HaiThere.Playbook
     public event UnityAction OnComplete;
 
 
-    public override void SetActive(bool status)
+    public virtual void SetActive(bool status)
     {
       if (meshRenderer)
         meshRenderer.enabled = status;
@@ -53,7 +52,7 @@ namespace HaiThere.Playbook
       return value != null && value.GetType() == this.GetType() && value.axis == axis;
     }
 
-    public override void Create()
+    public virtual void Create()
     {
       meshCollider = gameObject.GetComponent<MeshCollider>();
       meshFilter = gameObject.GetComponent<MeshFilter>();

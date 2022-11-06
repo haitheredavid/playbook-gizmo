@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -9,7 +8,7 @@ namespace HaiThere.Playbook
   /// <summary>
   /// Object for creating the editing functionality of a mesh at runtime
   /// </summary>
-  public class PlayBookGizmo : MonoBehaviour
+  public class Gizmo : MonoBehaviour
   {
 
     [SerializeField][Range(1f, 100f)] float movementSpeed = 100f;

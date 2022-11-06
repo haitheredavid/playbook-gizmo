@@ -6,7 +6,7 @@ using UnityEngine.Events;
 namespace HaiThere.Playbook
 {
 
-  public abstract class GizmoComponent : Gizmo
+  public abstract class GizmoComponent : MonoBehaviour, IGizmo
   {
     [Header("Component Props")]
     public Camera viewer;
@@ -50,14 +50,14 @@ namespace HaiThere.Playbook
 
     public event UnityAction OnActionComplete;
 
-    public override void SetActive(bool status)
+    public virtual void SetActive(bool status)
     {
       foreach (var p in pieces)
       {
         p.SetActive(status);
       }
     }
-    public override void Create()
+    public virtual void Create()
     {
       var prefab = BuildPrefab();
 

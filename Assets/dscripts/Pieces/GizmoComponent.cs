@@ -16,15 +16,19 @@ namespace HaiThere.Playbook
     [SerializeField] protected GameObject obj;
     [SerializeField] bool debugComp;
 
+
     [Header("Transform Props")]
     [Range(1f, 100f)] public float movementSpeed = 100f;
     public float positionOffset = 0.3f;
-    public float scaleOffset = 0.3f;
+    public float pieceScale = 0.3f;
     public Vector3 anchorOffset = new Vector3(0.0f, 0.0f, 0.0f);
+
 
     protected List<GizmoPiece> pieces = new List<GizmoPiece>();
 
     public GizmoPiece activePiece { get; protected set; }
+
+    public Vector3 activeObjSize { get; set; }
 
     public GameObject activeObj
     {
@@ -54,6 +58,7 @@ namespace HaiThere.Playbook
       }
     }
 
+
     public Vector3 pointerPos
     {
       get => viewer == null ? Vector3.zero : viewer.ScreenToWorldPoint(Input.mousePosition);
@@ -63,6 +68,8 @@ namespace HaiThere.Playbook
 
     public event UnityAction<bool> OnDebugging;
 
+    protected virtual Vector3 prefabScale => new Vector3(.2f, .2f, pieceScale);
+    
     public virtual void SetActive(bool status)
     {
       foreach (var p in pieces)
@@ -70,6 +77,7 @@ namespace HaiThere.Playbook
         p.SetActive(status);
       }
     }
+
     public virtual void Create()
     {
       var prefab = BuildPrefab();
@@ -128,7 +136,7 @@ namespace HaiThere.Playbook
 
     protected virtual Vector3 GetPiecePosition(AxisType axis)
     {
-      var offset = Mathf.Max(positionOffset, scaleOffset * 0.5f);
+      var offset = Mathf.Max(positionOffset, pieceScale * 0.5f);
       return axis switch
       {
         AxisType.X => new Vector3(offset, 0, 0),
@@ -149,10 +157,9 @@ namespace HaiThere.Playbook
       };
     }
 
-
     protected virtual Mesh CreateMesh() => Builder.CreatCube(1f);
 
-    protected virtual TPiece BuildPrefab<TPiece>() where TPiece : GizmoPiece
+    protected TPiece BuildPrefab<TPiece>() where TPiece : GizmoPiece
     {
       var prefab = new GameObject().AddComponent<TPiece>();
 
@@ -161,9 +168,11 @@ namespace HaiThere.Playbook
       prefab.GetComponent<MeshRenderer>().material = Resources.Load<Material>("Gizmo");
       prefab.movementSpeed = movementSpeed;
       prefab.isLocal = isLocal;
-      prefab.transform.localScale = new Vector3(.2f, .2f, scaleOffset);
+      prefab.transform.localScale = prefabScale;
+
       return prefab;
     }
+
     protected abstract GizmoPiece BuildPrefab();
 
   }

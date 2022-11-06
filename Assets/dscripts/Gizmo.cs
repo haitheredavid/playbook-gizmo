@@ -75,6 +75,7 @@ namespace HaiThere.Playbook
 
       foreach (var g in gizmos)
       {
+        g.activeObjSize = playbookObject.objectBounds.size;
         g.activeObj = Obj.gameObject;
       }
     }
@@ -92,7 +93,7 @@ namespace HaiThere.Playbook
       if (enableScaling)
       {
         scaler = new GameObject("Scaler").AddComponent<GizmoComponentScaler>();
-        scaler.positionOffset = scaler.scaleOffset * 2f + 0.15f;
+        scaler.positionOffset = scaler.pieceScale * 2f + 0.15f;
         gizmos.Add(scaler);
       }
 

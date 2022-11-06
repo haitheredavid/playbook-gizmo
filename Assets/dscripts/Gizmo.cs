@@ -13,13 +13,14 @@ namespace HaiThere.Playbook
 
     [SerializeField][Range(1f, 100f)] float movementSpeed = 100f;
 
-    [SerializeField] List<GizmoPieceRotate> rotate;
     [SerializeField] bool isActive;
+    [SerializeField] bool enableMovement, enableScaling, enableRotation;
 
     [SerializeField] Vector3 anchorOffset = new Vector3(0.2f, 0.0f, 0.2f);
 
     GizmoComponentScaler scaler;
     GizmoComponentMover mover;
+    GizmoComponentRotater rotater;
     PlaybookObject Obj;
 
     public PlaybookUser user;
@@ -51,12 +52,24 @@ namespace HaiThere.Playbook
     {
       gizmos = new List<GizmoComponent>();
 
-      mover = new GameObject("Mover").AddComponent<GizmoComponentMover>();
-      scaler = new GameObject("Scaler").AddComponent<GizmoComponentScaler>();
-      scaler.positionOffset = scaler.scaleOffset * 2f + 0.15f;
-      gizmos.Add(mover);
-      gizmos.Add(scaler);
+      if (enableMovement)
+      {
+        mover = new GameObject("Mover").AddComponent<GizmoComponentMover>();
+        gizmos.Add(mover);
+      }
 
+      if (enableScaling)
+      {
+        scaler = new GameObject("Scaler").AddComponent<GizmoComponentScaler>();
+        scaler.positionOffset = scaler.scaleOffset * 2f + 0.15f;
+        gizmos.Add(scaler);
+      }
+
+      if (enableRotation)
+      {
+        rotater = new GameObject("Rotater").AddComponent<GizmoComponentRotater>();
+        gizmos.Add(rotater);
+      }
 
     }
 

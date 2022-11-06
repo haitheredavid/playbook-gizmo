@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -12,9 +13,13 @@ namespace HaiThere.Playbook
   {
     public PlaybookUser user;
 
+
     [SerializeField][Range(1f, 100f)] float movementSpeed = 100f;
     [SerializeField] bool enableMovement, enableScaling, enableRotation;
     [SerializeField] Vector3 anchorOffset = new Vector3(0.2f, 0.0f, 0.2f);
+    [SerializeField] bool debug;
+    [SerializeField] GizmoDebugger debugger;
+
 
     GizmoComponentScaler scaler;
     GizmoComponentMover mover;
@@ -25,7 +30,36 @@ namespace HaiThere.Playbook
 
     public List<GizmoComponent> gizmos { get; private set; }
 
-    public event UnityAction OnObjectModified;
+    public bool isDebugging
+    {
+      get => debug;
+      set
+      {
+        debug = value;
+        if (gizmos == null || !gizmos.Any())
+        {
+          Debug.Log("No Active components to set to debug");
+          return;
+        }
+
+        if (debugger == null)
+        {
+          Debug.Log("No container for debuggers is found, set that up!");
+          return;
+        }
+
+        if (!debugger.isInit)
+        {
+          debugger.Init(gizmos);
+        }
+
+        foreach (var g in gizmos)
+        {
+          g.debug = value;
+        }
+      }
+    }
+
 
     public void SetActiveObj(PlaybookObject playbookObject)
     {
@@ -107,5 +141,7 @@ namespace HaiThere.Playbook
         g.SetActive(b);
       }
     }
+
+    public event UnityAction OnObjectModified;
   }
 }

@@ -14,6 +14,7 @@ namespace HaiThere.Playbook
     public bool isLocal = true;
     public bool showLine = true;
     [SerializeField] protected GameObject obj;
+    [SerializeField] bool debugComp;
 
     [Header("Transform Props")]
     [Range(1f, 100f)] public float movementSpeed = 100f;
@@ -43,12 +44,24 @@ namespace HaiThere.Playbook
       }
     }
 
+    public bool debug
+    {
+      get => debugComp;
+      set
+      {
+        debugComp = value;
+        OnDebugging?.Invoke(value);
+      }
+    }
+
     public Vector3 pointerPos
     {
       get => viewer == null ? Vector3.zero : viewer.ScreenToWorldPoint(Input.mousePosition);
     }
 
     public event UnityAction OnActionComplete;
+
+    public event UnityAction<bool> OnDebugging;
 
     public virtual void SetActive(bool status)
     {
@@ -135,6 +148,7 @@ namespace HaiThere.Playbook
         _ => Vector3.zero
       };
     }
+
 
     protected virtual Mesh CreateMesh() => Builder.CreatCube(1f);
 

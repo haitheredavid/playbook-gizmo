@@ -10,7 +10,7 @@ namespace HaiThere.Playbook
     [SerializeField] PlaybookUser user;
     [SerializeField] GameObject playBookObjectPrefab;
     [SerializeField] List<PlaybookObject> objects = new List<PlaybookObject>();
-    
+
     PlaybookObject obj;
 
     public void CreateNewObject()
@@ -61,6 +61,18 @@ namespace HaiThere.Playbook
       gizmo.OnObjectModified += user.LookAtTarget;
       gizmo.Create();
       gizmo.SetActive(false);
+    }
+
+    public void SetDebugger(bool value)
+    {
+      if (gizmo == null)
+      {
+        Debug.Log("No Gizmo set for debugging");
+        return;
+      }
+
+      gizmo.isDebugging = value;
+
     }
 
   }

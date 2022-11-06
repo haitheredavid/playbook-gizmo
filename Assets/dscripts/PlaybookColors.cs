@@ -13,8 +13,8 @@ namespace HaiThere.Playbook
 		public static Color32 Active = new Color32(68, 159, 208, 255);
 		public static Color32 InActive = Color.gray;
 
-		public static Color32 AxisX = Color.green;
-		public static Color32 AxisY = Color.red;
+		public static Color32 AxisX = Color.red;
+		public static Color32 AxisY = Color.green;
 		public static Color32 AxisZ = Color.blue;
 
 		public static Color32 GetAxisColor(AxisType axis)

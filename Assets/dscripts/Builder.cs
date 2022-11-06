@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 namespace HaiThere.Playbook
 {
@@ -70,13 +72,68 @@ namespace HaiThere.Playbook
       return mesh;
     }
 
-    public static Mesh CreateCircle(Vector3 center, int sides, float innerRadius, float offsetSize)
+    public static Mesh CreatHollowCylinder(int sides, float innerRadius, float offsetSize)
+    {
+
+      var center = Vector3.zero;
+      var points = new List<Vector3>();
+      var triangles = new List<int>();
+
+      points.AddRange(CreatePointRing(center, sides, innerRadius));
+      points.AddRange(CreatePointRing(center, sides, innerRadius + offsetSize));
+      triangles.AddRange(getHollowCapTris(points));
+
+      points.AddRange(points.Select(x => x + new Vector3(0, 0, 1)).ToList() );
+      triangles.AddRange(getHollowCapTris(points));
+
+      var obj = new Mesh();
+      obj.SetVertices(points);
+      obj.SetTriangles(triangles, 0);
+      obj.RecalculateNormals();
+
+      return obj;
+    }
+
+
+
+
+    public static Mesh CreateCircle(int sides, float innerRadius, float offsetSize) => CreateCircle(sides, innerRadius, offsetSize, Vector3.zero);
+
+    public static Mesh CreateCircle(int sides, float innerRadius, float offsetSize, Vector3 center)
     {
       var points = new List<Vector3>();
 
       points.AddRange(CreatePointRing(center, sides, innerRadius));
       points.AddRange(CreatePointRing(center, sides, innerRadius + offsetSize));
+      var triangles = getHollowCapTris(points);
 
+      var obj = new Mesh();
+      obj.SetVertices(points);
+      obj.SetTriangles(triangles, 0);
+      return obj;
+    }
+
+    public static IEnumerable<Vector3> CreatePointRing(Vector3 center, int sides, float radius, float positionOffset = 0f)
+    {
+      const float T = 2 * Mathf.PI;
+      var points = new List<Vector3>();
+      var circSteps = 1f / sides;
+      var radianSteps = circSteps * T;
+
+      for (var i = 0; i < sides; i++)
+      {
+        var radian = radianSteps * i;
+        points.Add(
+          center + new Vector3(Mathf.Cos(radian) * radius, Mathf.Sin(radian) * radius, 0)
+        );
+      }
+
+      return points;
+    }
+
+
+    static List<int> getHollowCapTris(ICollection points)
+    {
       var triSides = points.Count / 2;
       var triangles = new List<int>();
 
@@ -90,34 +147,7 @@ namespace HaiThere.Playbook
         triangles.Add(triSides + (triSides + index - 1) % triSides);
         triangles.Add(index + triSides);
       }
-
-      var obj = new Mesh();
-      obj.SetVertices(points);
-      obj.SetTriangles(triangles, 0);
-      return obj;
+      return triangles;
     }
-
-    public static IEnumerable<Vector3> CreatePointRing(Vector3 center, int sides, float radius)
-    {
-      const float T = 2 * Mathf.PI;
-      var points = new List<Vector3>();
-      var circSteps = 1f / sides;
-      var radianSteps = circSteps * T;
-
-      for (var i = 0; i < sides; i++)
-      {
-        var radian = radianSteps * i;
-        points.Add(
-          center
-          + new Vector3(Mathf.Cos(radian) * radius,
-            Mathf.Sin(radian) * radius,
-            0)
-        );
-      }
-
-      return points;
-    }
-
-
   }
 }

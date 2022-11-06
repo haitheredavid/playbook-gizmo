@@ -70,5 +70,55 @@ namespace HaiThere.Playbook
       mesh.RecalculateNormals();
       return mesh;
     }
+
+    public static Mesh CreateCircle(Vector3 center, int sides, float innerRadius, float offsetSize)
+    {
+      var points = new List<Vector3>();
+
+      points.AddRange(CreatePointRing(center, sides, innerRadius));
+      points.AddRange(CreatePointRing(center, sides, innerRadius + offsetSize));
+
+      var triSides = points.Count / 2;
+      var triangles = new List<int>();
+
+      for (int index = 0; index < triSides; index++)
+      {
+        triangles.Add(index);
+        triangles.Add(index + triSides);
+        triangles.Add((index + 1) % triSides);
+
+        triangles.Add(index);
+        triangles.Add(triSides + (triSides + index - 1) % triSides);
+        triangles.Add(index + triSides);
+      }
+
+      var obj = new Mesh();
+      obj.SetVertices(points);
+      obj.SetTriangles(triangles, 0);
+      return obj;
+    }
+
+    public static IEnumerable<Vector3> CreatePointRing(Vector3 center, int sides, float radius)
+    {
+      const float T = 2 * Mathf.PI;
+      var points = new List<Vector3>();
+      var circSteps = 1f / sides;
+      var radianSteps = circSteps * T;
+
+      for (var i = 0; i < sides; i++)
+      {
+        var radian = radianSteps * i;
+        points.Add(
+          center
+          + new Vector3(Mathf.Cos(radian) * radius,
+            Mathf.Sin(radian) * radius,
+            0)
+        );
+      }
+
+      return points;
+    }
+
+
   }
 }

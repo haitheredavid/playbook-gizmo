@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
@@ -50,47 +48,16 @@ namespace HaiThere.Playbook
     public override void Create()
     {
       base.Create();
-      var points = new List<Vector3>();
-
-      points.AddRange(PointRing(meshFilter.transform.localPosition, sides, innerRadius));
-      points.AddRange(PointRing(meshFilter.transform.localPosition, sides, innerRadius + offsetSize));
-
-      var triSides = points.Count / 2;
-      var triangles = new List<int>();
-
-      for (int index = 0; index < triSides; index++)
-      {
-        triangles.Add(index);
-        triangles.Add(index + triSides);
-        triangles.Add((index + 1) % triSides);
-
-        triangles.Add(index);
-        triangles.Add(triSides + (triSides + index - 1) % triSides);
-        triangles.Add(index + triSides);
-      }
+      var mesh = Builder.CreateCircle(meshFilter.transform.localPosition, sides, innerRadius, offsetSize);
 
       if (Application.isPlaying)
       {
-        if (!ObjectValid(meshFilter.mesh))
-        {
-          meshFilter.mesh = new Mesh();
-        }
-
-        meshFilter.mesh.Clear();
-        meshFilter.mesh.SetVertices(points);
-        meshFilter.mesh.SetTriangles(triangles, 0);
+        meshFilter.mesh = mesh;
         meshCollider.sharedMesh = meshFilter.mesh;
       }
       else
       {
-        if (!ObjectValid(meshFilter.sharedMesh))
-        {
-          meshFilter.sharedMesh = new Mesh();
-        }
-
-        meshFilter.sharedMesh.Clear();
-        meshFilter.sharedMesh.SetVertices(points);
-        meshFilter.sharedMesh.SetTriangles(triangles, 0);
+        meshFilter.sharedMesh = mesh;
         meshCollider.sharedMesh = meshFilter.sharedMesh;
       }
     }
@@ -169,32 +136,6 @@ namespace HaiThere.Playbook
     //
     // 	Create();
     // }
-
-    static IEnumerable<Vector3> PointRing(Vector3 center, int sides, float radius)
-    {
-      const float T = 2 * Mathf.PI;
-      var points = new List<Vector3>();
-      var circSteps = 1f / sides;
-      var radianSteps = circSteps * T;
-
-      for (var i = 0; i < sides; i++)
-      {
-        var radian = radianSteps * i;
-        points.Add(
-          center
-          + new Vector3(Mathf.Cos(radian) * radius,
-            Mathf.Sin(radian) * radius,
-            0)
-        );
-      }
-
-      return points;
-    }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-      Debug.Log("Clicked");
-      OnAxisClicked?.Invoke(axis, eventData.pointerCurrentRaycast.worldPosition);
-    }
+    
   }
 }

@@ -5,6 +5,6 @@ namespace HaiThere.Playbook
   {
     protected override GizmoPiece BuildPrefab() => BuildPrefab<GizmoPieceScale>();
 
-    protected override Mesh CreateMesh() => PlaybookMeshBuilder.CreateCone(1f, 1f);
+    protected override Mesh CreateMesh() => Builder.CreateCone(1f, 1f);
   }
 }

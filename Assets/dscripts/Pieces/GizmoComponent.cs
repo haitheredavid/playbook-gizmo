@@ -136,7 +136,7 @@ namespace HaiThere.Playbook
       };
     }
 
-    protected virtual Mesh CreateMesh() => PlaybookMeshBuilder.CreatCube(1f);
+    protected virtual Mesh CreateMesh() => Builder.CreatCube(1f);
 
     protected virtual TPiece BuildPrefab<TPiece>() where TPiece : GizmoPiece
     {

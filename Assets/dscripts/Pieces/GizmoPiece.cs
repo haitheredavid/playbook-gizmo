@@ -15,11 +15,10 @@ namespace HaiThere.Playbook
   public abstract class GizmoPiece : MonoBehaviour, IGizmo, IDragHandler, IBeginDragHandler, IEndDragHandler
   {
 
-    [SerializeField, HideInInspector] protected MeshFilter meshFilter;
-    [SerializeField, HideInInspector] protected MeshRenderer meshRenderer;
-    [SerializeField, HideInInspector] protected MeshCollider meshCollider;
-
     [SerializeField, Range(0.01f, 10f)] protected float precision = 0.5f;
+
+    protected MeshCollider meshCollider;
+    protected MeshRenderer meshRenderer;
 
     protected LineRenderer line;
     protected Vector3 objDelta;
@@ -55,7 +54,6 @@ namespace HaiThere.Playbook
     public virtual void Create()
     {
       meshCollider = gameObject.GetComponent<MeshCollider>();
-      meshFilter = gameObject.GetComponent<MeshFilter>();
       meshRenderer = gameObject.GetComponent<MeshRenderer>();
       material = meshRenderer.material;
       material.color = PlaybookColors.GetAxisColor(axis);
@@ -146,10 +144,5 @@ namespace HaiThere.Playbook
     }
 
     protected abstract void ApplyResult(Vector3 result);
-
-    protected static bool ObjectValid<TObj>(TObj mesh) where TObj : UnityEngine.Object
-    {
-      return mesh != null;
-    }
   }
 }
